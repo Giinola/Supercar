@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>NISSAN</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            background-color: #f8f8f8;
+        }
+
+        .car-models {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        .car-card {
+            background-color: #fff;
+            width: 500px;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .car-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .car-card img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-bottom: 2px solid #f5f5f5;
+        }
+
+        .car-card h4 {
+            font-size: 24px;
+            color: #222;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .car-card p {
+            font-size: 16px;
+            color: #666;
+            padding: 0 15px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <header class="header">
+            <a href="#" class="logo">SUPERCARS</a>
+            <nav class="navbar">
+                <a href="index.html">Accueil</a>
+                <a href="Voitures.html">Voitures</a>
+                <a href="demande_essai.php">Demande d'essai</a>
+                <a href="Service.html">Services</a>
+                <a href="Contact.html">Contact</a>
+                <a href="Connecter.html" class="nav-link">Se connecter</a>
+                <a href="inscription.html" class="nav-link">S'inscrire</a>
+            </nav>
+        </header>
+        <h1> Modèles NISSAN</h1>
+    </header>
+
+    <section class="car-models">
+        <div class="car-card">
+            <h4>Nissan Magnite</h4>
+            <img src="IMAGES/nassin.jpg" alt="Nissan Magnite">
+            <p>Le nissan magnite est un SUV de famille confort et magniable pour plaire à une famille.</p>
+            <p><strong>Prix : 90 000 €</strong></p>
+        </div>
+
+        <div class="car-card">
+            <h4>Nissan Gtr34</h4>
+            <img src="IMAGES/nissan gtr2.avif" alt="Nissan gtr34">
+            <p>Le nissan nissan_gtr34 est un voiture de course à modèle unique, faite pour les compétitions .</p>
+            <p><strong>Prix : 300 000 €</strong></p>
+        </div>
+
+        <div class="car-card">
+            <h4>Nissan Xtrail</h4>
+            <img src="IMAGES/xtrailxtrailrightfrontthreequarter.jpg" alt="Nissan xtrail">
+            <p>Le Nissan X-Trail est un SUV compact. Il est apprécié pour son côté pratique, sa fiabilité et ses capacités tout-terrain.</p>
+            <p><strong>Prix : 80 000 €</strong></p>
+        </div>
+
+        <div class="car-card">
+            <h4>Nissan Qashqai</h4>
+            <img src="IMAGES/nissan quashqai.webp" alt="  Nissan">
+            <p>Avec leur design innovant, Nissan Qashqai reflètent votre mode de vie et sont parfaits pour la ville comme pour vos escapades en famille</p>
+            <p><strong>Prix : 32 000 €</strong></p>
+        </div>
+    </section>
+</body>
+</html>

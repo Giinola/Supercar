@@ -1,6 +1,17 @@
 <?php
-$bdd = new mysqli("localhost", "root", "", "supercar");
-$bdd->set_charset("utf8");
+$host = "mysql-ginola.alwaysdata.net";  
+$login = "ginola";                  
+$pass = "AlwaysGinola1";            
+$dbname = "ginola_supercar";        
+ 
+ 
+$bdd = new mysqli($host, $login, $pass, $dbname);
+ 
+ 
+if ($bdd->connect_error) {
+    die("Connexion échouée: " . $bdd->connect_error);  
+}
+ 
 
 $contenu = [];
 $resultats = mysqli_query($bdd, "SELECT * FROM nissan");
@@ -16,70 +27,7 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>Modèles</title>
     <style>
-        .logo {
-            position: absolute;
-            left: 2%;
-            top: 20px;
-            font-size: 35px;
-            color: #ff5733;
-            text-decoration: none;
-            font-weight: 600;
-            animation: slideRight 1s ease forwards;
-        }
-
-        .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 15px 8%;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 100;
-}
-
-.navbar {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center; /* Centre le menu */
-}
-
-.navbar a {
-    font-size: 16px;
-    color: white;
-    text-decoration: none;
-    margin: 0 15px;
-    transition: color 0.3s ease-in-out;
-}
-
-.navbar a:hover {
-    color: #ff5733;
-}
-
-/* Styles spécifiques pour "Se connecter" et "S'inscrire" */
-.auth-links {
-    display: flex;
-    gap: 15px;
-    margin-right: 150px;
-}
-
-.auth-links a {
-    font-size: 16px;
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    padding: 8px 15px;
-    border-radius: 5px;
-    background: #ff5733; /* Ajoute un fond pour les distinguer */
-}
-
-.auth-links a:hover {
-    background: white;
-    color: #ff5733;
-}
-
+ 
 
         body {
             padding-top: 100px;
@@ -332,22 +280,9 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
     </style>
 </head>
 <body>
-    <header class="header">
-        <a href="#" class="logo">SUPERCARS</a>
-    
-        <nav class="navbar">
-            <a href="index.php">Accueil</a>
-            <a href="Voitures.php">Modèles</a>
-            <a href="demande_essai.php">Demande d'essai</a>
-            <a href="Service.php">Services</a>
-            <a href="Contact.php">Contact</a>
-        </nav>
-    
-        <div class="auth-links">
-            <a href="Login.php">Se connecter</a>
-            <a href="inscription.php">S'inscrire</a>
-        </div>
-    </header>
+     <header>
+<?php include "navbar.php"; ?>
+     </header>
 
 
    
@@ -361,7 +296,7 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
 
             <div class="car-models">
 <?php
-for ($i = 1; $i <= 4; $i++) {
+for ($i = 1; $i <= 8; $i++) {
     echo '<div class="car-card">';
     echo '<h4>' . $contenu['nom_voiture' . $i] . '</h4>';
     $image = isset($contenu['image_voiture' . $i]) ? $contenu['image_voiture' . $i] : '';

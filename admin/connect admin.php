@@ -6,25 +6,13 @@ if (isset($_SESSION['user_id'])) {
     exit();
 }
 
-$host = "mysql-ginola.alwaysdata.net";  
-$login = "ginola";                  
-$pass = "AlwaysGinola1";            
-$dbname = "ginola_supercar";        
- 
- 
-$bdd = new mysqli($host, $login, $pass, $dbname);
- 
- 
-if ($bdd->connect_error) {
-    die("Connexion échouée: " . $bdd->connect_error);  
-}
- 
+include('db.php'); 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];
     $mot_de_passe = $_POST['mot_de_passe'];
 
-    $sql = "SELECT * FROM utilisateur WHERE email = '$email' AND mot_de_passe = '$mot_de_passe'";
+    $sql = "SELECT * FROM admin WHERE email = '$email' AND mot_de_passe = '$mot_de_passe'";
     $result = $bdd->query($sql);
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();

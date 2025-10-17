@@ -1,7 +1,6 @@
 <?php  
-$bdd = new mysqli("localhost", "root", "", "supercar");
-$bdd->set_charset("utf8");
-
+include 'menu.php'; 
+include 'db.php';
 $contenu = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($_POST as $champ => $valeur) {
@@ -117,12 +116,12 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
 
 <div class="sidebar">
     <h4>Visualisation</h4>
-    <a href="Acceuil.php">Tableau de bord</a>
+     <a href="index.php">Tableau de bord</a>
     <a href="Demande_essai.php">Demandes d'essai</a>
     <a href="Utilisateurs.php">Utilisateurs</a>
     <a href="Contact.php">Messages</a>
     <div class="secondary-menu">
-        <h4>🛠️ Modification</h4>
+        <h4> Modification</h4>
         <a href="admin_acceuil.php">Accueil</a>
         <a href="admin_voitures.php" class="active">Voiture</a>
         <a href="admin_essais.php">Demandes essai</a>
@@ -137,17 +136,17 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
 <form method="POST">
     <table>
         <tr><th>Champ</th><th>Valeur</th></tr>
-        <tr><td>Texte en-tête</td><td><textarea name="en_tete"><?php echo $contenu['en_tete']; ?></textarea></td></tr>
-        <tr><td>Nom de la marque</td><td><textarea name="nom_marque"><?php echo $contenu['nom_marque']; ?></textarea></td></tr>
+        <tr><td>Texte en-tête</td><td><textarea name="en_tete"><?php echo isset ($contenu['en_tete']); ?></textarea></td></tr>
+        <tr><td>Nom de la marque</td><td><textarea name="nom_marque"><?php echo isset ($contenu['nom_marque']); ?></textarea></td></tr>
 
         <?php for ($i = 1; $i <= 4; $i++) { ?>
-            <tr><td>Nom Voiture <?php echo $i; ?></td><td><textarea name="nom_voiture<?php echo $i; ?>"><?php echo $contenu['nom_voiture'.$i]; ?></textarea></td></tr>
+            <tr><td>Nom Voiture <?php echo $i; ?></td><td><textarea name="nom_voiture<?php echo $i; ?>"><?php echo isset($contenu['nom_voiture'.$i]); ?></textarea></td></tr>
             <tr><td>Image Voiture <?php echo $i; ?></td><td>
-                <input type="text" name="image_voiture<?php echo $i; ?>" value="<?php echo $contenu['image_voiture'.$i]; ?>">
-                <br><img src="<?php echo $contenu['image_voiture'.$i]; ?>" alt="">
+                <input type="text" name="image_voiture<?php echo $i; ?>" value="<?php echo isset($contenu['image_voiture'.$i]); ?>">
+                <br><img src="<?php echo isset ($contenu['image_voiture'.$i]); ?>" alt="">
             </td></tr>
-            <tr><td>Description Voiture <?php echo $i; ?></td><td><textarea name="descri_voiture<?php echo $i; ?>"><?php echo $contenu['descri_voiture'.$i]; ?></textarea></td></tr>
-            <tr><td>Prix Voiture <?php echo $i; ?></td><td><textarea name="prix_voiture<?php echo $i; ?>"><?php echo $contenu['prix_voiture'.$i]; ?></textarea></td></tr>
+            <tr><td>Description Voiture <?php echo $i; ?></td><td><textarea name="descri_voiture<?php echo $i; ?>"><?php echo isset($contenu['descri_voiture'.$i]); ?></textarea></td></tr>
+            <tr><td>Prix Voiture <?php echo $i; ?></td><td><textarea name="prix_voiture<?php echo $i; ?>"><?php echo  isset($contenu['prix_voiture'.$i]); ?></textarea></td></tr>
         <?php } ?>
 
     </table>

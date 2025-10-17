@@ -1,7 +1,6 @@
 <?php
-$bdd = new mysqli("localhost", "root", "", "supercar");
-$bdd->set_charset("utf8");
-
+include 'menu.php';
+include 'db.php';
 // Enregistrement des modifications
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($_POST as $champ => $valeur) {
@@ -30,35 +29,6 @@ while ($row = $result->fetch_assoc()) {
         color: #fff;
         margin: 0;
         padding: 0;
-    }
-
-    .sidebar {
-        height: 100vh;
-        width: 220px;
-        position: fixed;
-        top: 0;
-        left: 0;
-        background-color: #2a2a2a;
-        padding-top: 20px;
-        box-shadow: 2px 0 5px rgba(252, 191, 73, 0.3);
-    }
-
-    .sidebar h4 {
-        color: #fcbf49;
-        text-align: center;
-        margin-bottom: 15px;
-    }
-
-    .sidebar a {
-        padding: 12px 20px;
-        text-decoration: none;
-        color: #eaeaea;
-        display: block;
-    }
-
-    .sidebar a:hover {
-        background-color: #fcbf49;
-        color: #000;
     }
 
     .main-content {
@@ -123,22 +93,6 @@ while ($row = $result->fetch_assoc()) {
   </style>
 </head>
 <body>
-
-<div class="sidebar">
-  <h4>Visualisation</h4>
-  <a href="Acceuil.php">Tableau de bord</a>
-  <a href="Demande_essai.php">Demandes d'essai</a>
-  <a href="Utilisateurs.php">Utilisateurs</a>
-  <a href="Contact.php">Contact</a>
-  <div class="secondary-menu" style="margin-top: 20px; border-top: 1px solid #444; padding-top: 15px;">
-    <h4>Modification</h4>
-    <a href="admin_acceuil.php">Accueil</a>
-            <a href="admin_voitures.php">Voiture</a>
-            <a href="admin_essai.php">Demandes essai</a>
-            <a href="admin_services.php">Services</a>
-            <a href="Admin_contact.php">Contact</a>
-  </div>
-</div>
 
 <div class="main-content">
   <h1> Administration – Page Demande d'essai</h1>

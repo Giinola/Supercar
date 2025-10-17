@@ -1,12 +1,12 @@
 <?php 
-$bdd = new mysqli("localhost", "root", "", "supercar");
-$bdd->set_charset("utf8");
+include 'menu.php'; 
+include 'db.php';
 
 $contenu = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($_POST as $champ => $valeur) {
-        mysqli_query($bdd, "UPDATE services SET valeur = '$valeur' WHERE nom_champ = '$champ'");
+        mysqli_query($bdd, "UPDATE services SET valeur = $valeur WHERE nom_champ = $nom_champ");
     }
 }
 
@@ -47,44 +47,7 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
             text-transform: uppercase;
             letter-spacing: 1px;
         }
-        .sidebar {
-            height: 100vh;
-            width: 220px;
-            position: fixed;
-            top: 0;
-            left: 0;
-            background-color: #1c1c1c;
-            padding-top: 20px;
-            box-shadow: 2px 0 5px rgba(252, 191, 73, 0.2);
-            overflow-y: auto;
-        }
-        .sidebar h4 {
-            color: var(--jaune);
-            text-align: center;
-            font-size: 16px;
-            margin: 20px 0 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .sidebar a {
-            display: block;
-            padding: 12px 20px;
-            color: #eaeaea;
-            text-decoration: none;
-            font-size: 14px;
-            transition: background-color 0.3s, color 0.3s;
-            border-left: 4px solid transparent;
-        }
-        .sidebar a:hover {
-            background-color: var(--jaune);
-            color: #000;
-        }
-        .sidebar a.active {
-            background-color: var(--jaune);
-            color: #000;
-            font-weight: bold;
-            border-left: 4px solid #fff000;
-        }
+        
         .main-content {
             margin-left: 220px;
             padding: 40px;
@@ -151,22 +114,6 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
     </style>
 </head>
 <body>
-
-<div class="sidebar">
-    <h4>Visualisation</h4>
-    <a href="Acceuil.php"> Tableau de bord</a>
-    <a href="Demande_essai.php"> Demandes d'essai</a>
-    <a href="Utilisateurs.php"> Utilisateurs</a>
-    <a href="Contact.php"> Messages</a>
-    <div class="secondary-menu">
-        <h4> Modification</h4>
-        <a href="admin_acceuil.php"> Accueil</a>
-        <a href="admin_voitures.php"> Voitures</a>
-        <a href="admin_essai.php"> Demandes essai</a>
-        <a href="admin_services.php" class="active">🛠️ Services</a>
-        <a href="admin_contact.php"> Contact</a>
-    </div>
-</div>
 
 <h1>Modifier les contenus de la page Services</h1>
 

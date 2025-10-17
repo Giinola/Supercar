@@ -1,126 +1,143 @@
 <?php
-$conn = mysqli_connect("localhost", "root", "", "supercar");
-if (!$conn) {
-    die("Erreur de connexion à la base de données.");
+include 'menu.php';
+include 'db.php';
+
+// Mise à jour du statut (version très simple)
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['new_status'])) {
+  $id = (int)$_POST['id'];
+  $new = $_POST['new_status'] === 'approuve' ? 'approuve' : 'refuse'; // whitelist basique
+  mysqli_query($conn, "UPDATE demandes_essai SET status='$new' WHERE id=$id");
 }
-$requete = "SELECT * FROM demandes_essai";
-$result = mysqli_query($conn, $requete);
+
+// Récupération des demandes
+$sql = "SELECT id, nom, email, voiture, date_essai, COALESCE(heure, Heure) AS heure,
+               IFNULL(status,'en_attente') AS status
+        FROM demandes_essai
+        ORDER BY date_essai DESC, id DESC";
+$result = mysqli_query($conn, $sql);
 ?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin - Demandes d'essai</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
-  <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #1c1c1c;
-      color: #f1f1f1;
-    }
-    .sidebar {
-      height: 100vh;
-      width: 220px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      background-color: #2a2a2a;
-      padding-top: 20px;
-      box-shadow: 2px 0 5px rgba(252, 191, 73, 0.3);
-      display: flex;
-      flex-direction: column;
-    }
-    .sidebar h4 {
-      color: #fcbf49;
-      text-align: center;
-      margin-bottom: 15px;
-      font-size: 16px;
-      font-weight: 600;
-    }
-    .sidebar a {
-      padding: 12px 20px;
-      text-decoration: none;
-      color: #eaeaea;
-      display: block;
-      font-size: 15px;
-      font-weight: 500;
-    }
-    .sidebar a:hover {
-      background-color: #fcbf49;
-      color: #000;
-    }
-    .sidebar .secondary-menu {
-      margin-top: 20px;
-      border-top: 1px solid #444;
-      padding-top: 15px;
-    }
-    .main-content {
-      margin-left: 220px;
-      padding: 30px;
-      background-color: #1c1c1c;
-      min-height: 100vh;
-    }
-    h2 {
-      color: #fcbf49;
-      margin-bottom: 20px;
-      font-size: 22px;
-    }
-    .table thead {
-      background-color: #fcbf49;
-      color: #1c1c1c;
-    }
-    .table td, .table th {
-      vertical-align: middle;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin - Demandes d'essai</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+/* Thème simple sombre */
+:root{ --bg:#1c1c1c; --panel:#222428; --panel2:#2a2d32; --text:#f1f1f1; --accent:#fcbf49; }
+body{ background:var(--bg) !important; color:var(--text); font-family: Poppins, Arial, sans-serif; }
+
+/* Si tu as une sidebar fixe de 220px */
+.main-content{ margin-left:220px; min-height:100vh; padding:28px; box-sizing:border-box; }
+
+/* Titre */
+h2{ color:var(--accent); margin:0 0 18px; font-weight:700; }
+h2::after{ content:""; display:block; width:64px; height:3px; background:var(--accent); border-radius:99px; margin-top:8px; }
+
+/* Carte du tableau (look moderne mais simple) */
+.table-card{ background:linear-gradient(180deg,var(--panel),var(--panel2)); border:1px solid rgba(255,255,255,.08); border-radius:12px; overflow:hidden; }
+
+/* Tableau sombre */
+.table{ margin:0; color:var(--text); border-color:rgba(255,255,255,.08); }
+.table thead{ background:var(--accent); color:#1b1b1b; }
+.table thead th{ border:0 !important; padding:14px 16px; }
+.table td,.table th{ border-color:rgba(255,255,255,.08) !important; padding:12px 16px; background:transparent; }
+.table-striped tbody tr:nth-of-type(odd){ background:rgba(255,255,255,.02); }
+.table-hover tbody tr:hover{ background:rgba(252,191,73,.10); }
+
+/* Badge statut très simple */
+.badge-status{ display:inline-block; padding:.35rem .6rem; border-radius:999px; font-weight:700; font-size:.8rem; }
+.en_attente{ background:rgba(255,255,255,.12); color:#cfd5df; }
+.approuve{   background:rgba(34,197,94,.18);  color:#86efac; }
+.refuse{     background:rgba(244,63,94,.18);  color:#fda4af; }
+
+/* Boutons simples (jaune / contour rouge) */
+.actions{ display:flex; gap:.5rem; justify-content:flex-end; flex-wrap:wrap; }
+.btn-approve{ background:var(--accent); color:#1b1b1b; border:0; border-radius:8px; padding:.4rem .7rem; font-weight:700; }
+.btn-approve:disabled{ opacity:.6; }
+.btn-refuse{ background:transparent; color:#f08a8f; border:1px solid #f08a8f; border-radius:8px; padding:.4rem .7rem; font-weight:700; }
+.btn-refuse:disabled{ opacity:.6; }
+
+/* Contenu du tableau en blanc (uniquement le tbody) */
+.table tbody,
+.table tbody td,
+.table tbody th{
+  color:#fff !important;
+}
+
+/* Éléments fréquents à l'intérieur des cellules */
+.table tbody a,
+.table tbody small,
+.table tbody .text-muted{
+  color:#fff !important;
+  text-decoration: none;
+}
+
+/* On garde l'en-tête tel que défini (jaune + texte foncé) */
+.table thead,
+.table thead th{
+  color:#1b1b1b !important; /* déjà dans ton thème, on renforce juste */
+}
+
+</style>
 </head>
 <body>
-  <div class="sidebar">
-    <div>
-      <h4>Visualisation</h4>
-      <a href="Acceuil.php">Tableau de bord</a>
-      <a href="Semande_essai.php">Demandes d'essai</a>
-      <a href="Utilisateurs.php">Utilisateurs</a>
-      <a href="Contacts.php">Contacts</a>
-      <div class="secondary-menu">
-        <h4>Modification</h4>
-        <a href="admin_acceuil.php">Accueil</a>
-            <a href="admin_voitures.php">Voiture</a>
-            <a href="admin_essai.php">Demandes essai</a>
-            <a href="admin_services.php">Services</a>
-            <a href="Admin_contact.php">Contact</a>
-      </div>
-    </div>
-  </div>
 
-  <div class="main-content">
-    <h2>Demandes d'essai</h2>
-    <div class="table-responsive">
-      <table class="table table-bordered table-dark">
-        <thead>
+
+<div class="main-content">
+  <h2>Demandes d'essai</h2>
+
+  <div class="table-responsive table-card">
+    <table class="table table-striped table-hover align-middle">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Modèle</th>
+          <th>Date</th>
+          <th>Heure</th>
+          <th>Statut</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <?php if ($result && mysqli_num_rows($result) > 0): ?>
+          <?php while ($row = mysqli_fetch_assoc($result)): 
+            $id    = (int)$row['id'];
+            $nom   = $row['nom'] ?? '';
+            $mail  = $row['email'] ?? '';
+            $voit  = $row['voiture'] ?? '';
+            $date  = !empty($row['date_essai']) ? date('d/m/Y', strtotime($row['date_essai'])) : '';
+            $heure = $row['heure'] ?? '';
+            $stat  = $row['status'] ?? 'en_attente';
+          ?>
           <tr>
-            <th>Nom</th>
-            <th>Email</th>
-            <th>Modèle</th>
-            <th>Date</th>
-            <th>Heures</th>
+            <td><?php echo $id; ?></td>
+            <td><?php echo $nom; ?></td>
+            <td><?php echo $mail; ?></td>
+            <td><?php echo $voit; ?></td>
+            <td><?php echo $date; ?></td>
+            <td><?php echo $heure; ?></td>
+            <td><span class="badge-status <?php echo $stat; ?>"><?php echo str_replace('_',' ', $stat); ?></span></td>
+            <td class="text-end">
+              <form method="post" class="actions">
+                <input type="hidden" name="id" value="<?php echo $id; ?>">
+                <button type="submit" name="new_status" value="approuve" class="btn-approve" <?php echo $stat==='approuve'?'disabled':''; ?>>Approuver</button>
+                <button type="submit" name="new_status" value="refuse" class="btn-refuse" <?php echo $stat==='refuse'?'disabled':''; ?>>Refuser</button>
+              </form>
+            </td>
           </tr>
-        </thead>
-        <tbody>
-          <?php while ($row = mysqli_fetch_assoc($result)) { ?>
-          <tr>
-            <td><?php echo $row['nom']; ?></td>
-            <td><?php echo $row['email']; ?></td>
-            <td><?php echo $row['voiture']; ?></td>
-            <td><?php echo $row['date_essai']; ?></td>
-            <td><?php echo $row['Heure']; ?></td>
-          </tr>
-          <?php } ?>
-        </tbody>
-      </table>
-    </div>
+          <?php endwhile; ?>
+        <?php else: ?>
+          <tr><td colspan="8" class="text-center py-4">Aucune demande</td></tr>
+        <?php endif; ?>
+      </tbody>
+    </table>
   </div>
+</div>
+
 </body>
 </html>

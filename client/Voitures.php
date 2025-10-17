@@ -1,6 +1,20 @@
 <?php
-$bdd = new mysqli("localhost", "root", "", "supercar");
+$host = "mysql-ginola.alwaysdata.net";  
+$login = "ginola";                  
+$pass = "AlwaysGinola1";            
+$dbname = "ginola_supercar";        
+ 
+ 
+$bdd = new mysqli($host, $login, $pass, $dbname);
+ 
+ 
+if ($bdd->connect_error) {
+    die("Connexion échouée: " . $bdd->connect_error);  
+}
+ 
+ 
 $bdd->set_charset("utf8");
+ 
 
 $contenu = [];
 $resultats = mysqli_query($bdd, "SELECT * FROM voitures");
@@ -24,73 +38,7 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
             text-align: center;
             background-color: #f8f8f8;
         }
-        .logo {
-            position: absolute;
-            left: 2%;
-            top: 20px;
-            font-size: 35px;
-            color: #ff5733;
-            text-decoration: none;
-            font-weight: 600;
-            animation: slideRight 1s ease forwards;
-        }
-          .header {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          padding: 15px 8%;
-          background: rgba(0, 0, 0, 0.8);
-          display: flex;
-          justify-content: space-between;
-         align-items: center;
-        z-index: 100;
-        flex-wrap: wrap; /* Permet le retour à la ligne si nécessaire */
-        }
-
-        .navbar {
-            display: flex;
-            justify-content: center; /* Centre le menu */
-            flex-grow: 1;
-        }
-
-        .navbar a {
-            font-size: 16px;
-            color: white;
-            text-decoration: none;
-            margin: 0 15px;
-            transition: color 0.3s ease-in-out;
-        }
-
-        .navbar a:hover {
-            color: #ff5733;
-        }
-
-        .auth-links {
-            display: flex;
-            gap: 15px;
-            flex-shrink: 0;
-            align-items: center;
-            justify-content: center;
-            margin-right: 150px; 
-        }
-
-        .auth-links a {
-            font-size: 16px;
-            color: white;
-            text-decoration: none;
-            font-weight: bold;
-            padding: 8px 15px;
-            border-radius: 5px;
-            background: #ff5733;
-            white-space: nowrap; 
-            display: inline-block;
-        }
-
-        .auth-links a:hover {
-            background: white;
-            color: #ff5733;
-        }
+      
 
 
         .modèle {
@@ -193,60 +141,7 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
         footer a:hover {
             color: #ccc;
         }
-    </style>
-</head>
-<body>
-    <header class="header">
-        <a href="#" class="logo">SUPERCARS</a>
-    
-        <nav class="navbar">
-            <a href="index.php">Accueil</a>
-            <a href="Voitures.php">Modèles</a>
-            <a href="demande_essai.php">Demande d'essai</a>
-            <a href="Service.php">Services</a>
-            <a href="Contact.php">Contact</a>
-        </nav>
-    
-        <div class="auth-links">
-            <a href="Login.php">Se connecter</a>
-            <a href="inscription.php">S'inscrire</a>
-        </div>
-    </header>
-
-
-    <!-- Section principale des modèles -->
-    <section class="modèle">
-    <h1><?php echo $contenu['titre_page']; ?></h1>
-    <p><?php echo $contenu['description_page']; ?></p>
-</section>
-
-<div class="catalog">
-    <div class="car">
-        <h3><?php echo $contenu['ford_nom']; ?></h3>
-        <img src="<?php echo $contenu['ford_image']; ?>" alt="Ford">
-        <a href="<?php echo $contenu['ford_lien']; ?>" class="button">Voir détails</a>
-    </div>
-    <div class="car">
-        <h3><?php echo $contenu['nissan_nom']; ?></h3>
-        <img src="<?php echo $contenu['nissan_image']; ?>" alt="Nissan">
-        <a href="<?php echo $contenu['nissan_lien']; ?>" class="button">Voir détails</a>
-    </div>
-    <div class="car">
-        <h3><?php echo $contenu['mercedes_nom']; ?></h3>
-        <img src="<?php echo $contenu['mercedes_image']; ?>" alt="Mercedes">
-        <a href="<?php echo $contenu['mercedes_lien']; ?>" class="button">Voir détails</a>
-    </div>
-    <div class="car">
-        <h3><?php echo $contenu['toyota_nom']; ?></h3>
-        <img src="<?php echo $contenu['toyota_image']; ?>" alt="Toyota">
-        <a href="<?php echo $contenu['toyota_lien']; ?>" class="button">Voir détails</a>
-    </div>
-</div>
-    <!-- Footer de la page -->
-    <footer>
-        <footer>
-            <style>
-              footer {
+          footer {
                 background-color: #111;
                 color: white;
                 padding: 30px 20px;
@@ -334,8 +229,45 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
                   flex: none;
                 }
               }
-            </style>
-          
+    </style>
+</head>
+<body>
+    <header>
+<?php include "navbar.php"; ?>
+     </header>
+
+
+ 
+    <section class="modèle">
+    <h1><?php echo $contenu['titre_page']; ?></h1>
+    <p><?php echo $contenu['description_page']; ?></p>
+</section>
+
+<div class="catalog">
+    <div class="car">
+        <h3><?php echo $contenu['ford_nom']; ?></h3>
+        <img src="<?php echo $contenu['ford_image']; ?>" alt="Ford">
+        <a href="<?php echo $contenu['ford_lien']; ?>" class="button">Voir détails</a>
+    </div>
+    <div class="car">
+        <h3><?php echo $contenu['nissan_nom']; ?></h3>
+        <img src="<?php echo $contenu['nissan_image']; ?>" alt="Nissan">
+        <a href="<?php echo $contenu['nissan_lien']; ?>" class="button">Voir détails</a>
+    </div>
+    <div class="car">
+        <h3><?php echo $contenu['mercedes_nom']; ?></h3>
+        <img src="<?php echo $contenu['mercedes_image']; ?>" alt="Mercedes">
+        <a href="<?php echo $contenu['mercedes_lien']; ?>" class="button">Voir détails</a>
+    </div>
+    <div class="car">
+        <h3><?php echo $contenu['toyota_nom']; ?></h3>
+        <img src="<?php echo $contenu['toyota_image']; ?>" alt="Toyota">
+        <a href="<?php echo $contenu['toyota_lien']; ?>" class="button">Voir détails</a>
+    </div>
+</div>
+    <!-- Footer de la page -->
+    <footer>
+        <footer>
             <div class="footer-content">
               <div class="footer-section">
                 <h3>Contact</h3>

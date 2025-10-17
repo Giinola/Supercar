@@ -16,65 +16,6 @@
             padding: 0;
         }
 
-        .header {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 15px 8%;
-    background: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    z-index: 100;
-}
-
-.navbar {
-    flex-grow: 1;
-    display: flex;
-    justify-content: center; /* Centre le menu */
-}
-
-.navbar a {
-    font-size: 16px;
-    color: white;
-    text-decoration: none;
-    margin: 0 15px;
-    transition: color 0.3s ease-in-out;
-}
-
-.navbar a:hover {
-    color: #ff5733;
-}
-
-/* Styles spécifiques pour "Se connecter" et "S'inscrire" */
-.auth-links {
-    display: flex;
-    gap: 15px;
-    margin-right: 170px;
-}
-
-.auth-links a {
-    font-size: 16px;
-    color: white;
-    text-decoration: none;
-    font-weight: bold;
-    padding: 8px 15px;
-    border-radius: 5px;
-    background: #ff5733; /* Ajoute un fond pour les distinguer */
-}
-
-.auth-links a:hover {
-    background: white;
-    color: #ff5733;
-}
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #ff5733;
-            text-decoration: none;
-        }
         .contact-container {
             display: flex;
             flex-direction: column;
@@ -182,23 +123,9 @@
     </style>
 </head>
 <body>
-    <header class="header">
-        <a href="#" class="logo">SUPERCARS</a>
-    
-        <nav class="navbar">
-            <a href="index.php">Accueil</a>
-            <a href="Voitures.php">Modèles</a>
-            <a href="demande_essai.php">Demande d'essai</a>
-            <a href="Service.php">Services</a>
-            <a href="Contact.php">Contact</a>
-        </nav>
-    
-        <div class="auth-links">
-            <a href="Login.php">Se connecter</a>
-            <a href="inscription.php">S'inscrire</a>
-        </div>
-    </header>
-
+    <header>
+<?php include "navbar.php"; ?>
+     </header>
     
     <div class="contact-container">
         <div class="contact-row">

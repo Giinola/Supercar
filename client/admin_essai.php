@@ -1,6 +1,17 @@
 <?php
-$bdd = new mysqli("localhost", "root", "", "supercar");
-$bdd->set_charset("utf8");
+$host = "mysql-ginola.alwaysdata.net";  
+$login = "ginola";                  
+$pass = "AlwaysGinola1";            
+$dbname = "ginola_supercar";        
+ 
+ 
+$bdd = new mysqli($host, $login, $pass, $dbname);
+ 
+ 
+if ($bdd->connect_error) {
+    die("Connexion échouée: " . $bdd->connect_error);  
+}
+ 
 
 // Enregistrement des modifications
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -76,7 +87,7 @@ while ($row = $result->fetch_assoc()) {
     }
 </style>
 
-<h1>🛠️ Administration – Page Demande d'essai</h1>
+<h1> Administration – Page Demande d'essai</h1>
 <form method="POST">
     <table>
         <tr><th>Champ</th><th>Valeur</th></tr>

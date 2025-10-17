@@ -1,11 +1,10 @@
 <?php 
-$bdd = new mysqli("localhost", "root", "", "supercar");
-$bdd->set_charset("utf8");
+include 'menu.php';
+include 'db.php';
 
-// Initialisation
 $contenu = [];
 
-// Traitement du formulaire
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($_POST as $champ => $valeur) {
         mysqli_query($bdd, "UPDATE accueil SET valeur = '$valeur' WHERE nom_champ = '$champ'");
@@ -107,64 +106,6 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
     button[type="submit"]:hover {
         background-color: #e6b800;
     }
-
-    .sidebar {
-        height: 100vh;
-        width: 220px;
-        position: fixed;
-        top: 0;
-        left: 0;
-        background-color: #2a2a2a;
-        padding-top: 20px;
-        box-shadow: 2px 0 5px rgba(252, 191, 73, 0.3);
-        display: flex;
-        flex-direction: column;
-        z-index: 1000;
-    }
-
-    .sidebar h4 {
-        color: #fcbf49;
-        text-align: center;
-        margin-bottom: 15px;
-        font-size: 16px;
-        font-weight: 600;
-    }
-
-    .sidebar a {
-        padding: 12px 20px;
-        text-decoration: none;
-        color: #eaeaea;
-        display: block;
-        font-size: 15px;
-        font-weight: 500;
-    }
-
-    .sidebar a:hover {
-        background-color: #fcbf49;
-        color: #000;
-    }
-
-    .sidebar a.active {
-        background-color: #2a2a2a;
-        color: #fcbf49;
-    }
-
-    .sidebar .secondary-menu {
-        margin-top: 20px;
-        border-top: 1px solid #444;
-        padding-top: 15px;
-    }
-
-    .topbar {
-        background-color: #2a2a2a;
-        padding: 20px 40px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        margin-left: 220px;
-    }
-
     .main-content {
         margin-left: 220px;
         padding: 0 20px;
@@ -196,23 +137,7 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
     }
 </style>
 
-<div class="sidebar">
-    <div>
-        <h4>Visualisation</h4>
-        <a href="Acceuil.php">Tableau de bord</a>
-        <a href="Demande_essai.php">Demandes d'essai</a>
-        <a href="Utilisateurs.php">Utilisateurs</a>
-        <a href="Contact.php">Contact</a>
-        <div class="secondary-menu">
-            <h4>Modification</h4>
-            <a href="admin_acceuil.php">Accueil</a>
-            <a href="admin_voitures.php">Voiture</a>
-            <a href="admin_essai.php">Demandes essai</a>
-            <a href="admin_services.php">Services</a>
-            <a href="Admin_contact.php">Contact</a>
-        </div>
-    </div>
-</div>
+
 
 <h1> Administration - Page d'accueil</h1>
 

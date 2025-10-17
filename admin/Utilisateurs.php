@@ -1,15 +1,6 @@
 <?php
- $host="localhost";
- $login="root";
- $password= "";
- $dbname= "supercar";
- 
- $connexion = new mysqli($host,$login,$password,$dbname);
- if (!$connexion) {
-     echo"erreur"; 
-     exit();
- }
-
+include 'menu.php'; 
+include 'db.php';
  $requete="SELECT* FROM utilisateur";
  $resultats=mysqli_query($connexion, $requete);
  // Suppression
@@ -20,7 +11,6 @@ if (isset($_POST['supprimer_id'])) {
     $stmt->execute();
 }
 
-// Modification
 if (isset($_POST['modifier_id'])) {
     $id = intval($_POST['modifier_id']);
     $nom = $_POST['nom'];
@@ -130,26 +120,7 @@ if (isset($_POST['modifier_id'])) {
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div>
-            <h4>Visualisation</h4>
-            <a href="Acceuil.php">Tableau de bord</a>
-            <a href="Demande_essai.php">Demandes d'essai</a>
-            <a href="Utilisateurs.php">Utilisateurs</a>
-            <a href="Contacts.php">Contacts</a>
-            <div class="secondary-menu">
-                <h4>Modification</h4>
-                <a href="admin_acceuil.php">Accueil</a>
-            <a href="admin_voitures.php">Voiture</a>
-            <a href="admin_essai.php">Demandes essai</a>
-            <a href="admin_services.php">Services</a>
-            <a href="Admin_contact.php">Contact</a>
-            </div>
-        </div>
-    </div>
 
-    <!-- Contenu principal -->
     <div class="main-content">
         <h2>Gestion des Utilisateurs</h2>
 

@@ -1,8 +1,6 @@
 <?php
-$conn = mysqli_connect("localhost", "root", "", "supercar");
-if (!$conn) {
-    die("Erreur de connexion à la base de données.");
-}
+include 'menu.php';
+include 'db.php';
 $requete = "SELECT * FROM contacts";
 $result = mysqli_query($conn, $requete);
 ?>
@@ -20,46 +18,7 @@ $result = mysqli_query($conn, $requete);
       background-color: #1c1c1c;
       color: #f1f1f1;
     }
-    .sidebar {
-      height: 100vh;
-      width: 220px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      background-color: #2a2a2a;
-      padding-top: 20px;
-      box-shadow: 2px 0 5px rgba(252, 191, 73, 0.3);
-      display: flex;
-      flex-direction: column;
-    }
-    .sidebar h4 {
-      color: #fcbf49;
-      text-align: center;
-      margin-bottom: 15px;
-      font-size: 16px;
-      font-weight: 600;
-    }
-    .sidebar a {
-      padding: 12px 20px;
-      text-decoration: none;
-      color: #eaeaea;
-      display: block;
-      font-size: 15px;
-      font-weight: 500;
-    }
-    .sidebar a:hover {
-      background-color: #fcbf49;
-      color: #000;
-    }
-    .sidebar a.active {
-      background-color: #2a2a2a;
-      color: #fcbf49;
-    }
-    .sidebar .secondary-menu {
-      margin-top: 20px;
-      border-top: 1px solid #444;
-      padding-top: 15px;
-    }
+    
     .main-content {
       margin-left: 220px;
       padding: 30px;
@@ -81,25 +40,7 @@ $result = mysqli_query($conn, $requete);
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <div>
-      <h4>Visualisation</h4>
-      <a href="Acceuil.php">Tableau de bord</a>
-      <a href="Demande_essai.php">Demandes d'essai</a>
-      <a href="Utilisateurs.php">Utilisateurs</a>
-      <a href="Contact.php">Contact</a>
-      <div class="secondary-menu">
-        <h4>Modification</h4>
-        <a href="admin_acceuil.php">Accueil</a>
-            <a href="admin_voitures.php">Voiture</a>
-            <a href="admin_essai.php">Demandes essai</a>
-            <a href="admin_services.php">Services</a>
-            <a href="Admin_contact.php">Contact</a>
-      </div>
-    </div>
-  </div>
-
-  <div class="main-content">
+<div class="main-content">
     <h2>Messages de contact</h2>
     <div class="table-responsive">
       <table class="table table-bordered table-dark">
@@ -114,10 +55,10 @@ $result = mysqli_query($conn, $requete);
         <tbody>
           <?php while ($row = mysqli_fetch_assoc($result)) { ?>
           <tr>
-            <td><?php echo $row['nom']; ?></td>
-            <td><?php echo $row['adresse']; ?></td>
-            <td><?php echo $row['email']; ?></td>
-            <td><?php echo $row['messages']; ?></td>
+            <td><?php echo htmlspecialchars($row['nom']); ?></td>
+            <td><?php echo htmlspecialchars($row['adresse']); ?></td>
+            <td><?php echo htmlspecialchars($row['email']); ?></td>
+            <td><?php echo htmlspecialchars($row['messages']); ?></td>
           </tr>
           <?php } ?>
         </tbody>

@@ -14,19 +14,19 @@
         <a href="#" class="logo">SUPERCARS</a>
     
         <nav class="navbar">
-            <a href="www/client/index.php">Accueil</a>
-            <a href="www/client/Voitures.php">Modèles</a>
-            <a href="www/client/demande_essai.php">Demande d'essai</a>
-            <a href="www/client/Service.php">Services</a>
-            <a href="www/client/Contact.php">Contact</a>
+            <a href="ftp://ginola@ftp-ginola.alwaysdata.net/www/client/index.php">Accueil</a>
+            <a href="ftp://ginola@ftp-ginola.alwaysdata.net/www/client/Voitures.php">Modèles</a>
+            <a href="ftp://ginola@ftp-ginola.alwaysdata.net/www/client/demande_essai.php">Demande d'essai</a>
+            <a href="ftp://ginola@ftp-ginola.alwaysdata.net/www/client/Service.php">Services</a>
+            <a href="ftp://ginola@ftp-ginola.alwaysdata.net/www/client/Contact.php">Contact</a>
         </nav>
     
         <div class="auth-links">
-            <a href="www/client/Login.php">Se connecter</a>
-            <a href="www/client/inscription.php">S'inscrire</a>
+            <a href="ftp://ginola@ftp-ginola.alwaysdata.net/www/client/Login.php">Se connecter</a>
+            <a href="ftp://ginola@ftp-ginola.alwaysdata.net/www/client/inscription.php">S'inscrire</a>
         </div>
     </header>
-    <style>
+    <style> 
         .header {
     position: fixed;
     top: 0;

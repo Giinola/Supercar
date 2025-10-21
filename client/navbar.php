@@ -6,7 +6,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <title>Vente de Voitures</title>
     
-    <!-- Bootstrap CSS -->
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 
@@ -14,16 +14,16 @@
         <a href="#" class="logo">SUPERCARS</a>
     
         <nav class="navbar">
-            <a href="ftp://ginola@ftp-ginola.alwaysdata.net/www/client/index.php">Accueil</a>
-            <a href="ftp://ginola@ftp-ginola.alwaysdata.net/www/client/Voitures.php">Modèles</a>
-            <a href="ftp://ginola@ftp-ginola.alwaysdata.net/www/client/demande_essai.php">Demande d'essai</a>
-            <a href="ftp://ginola@ftp-ginola.alwaysdata.net/www/client/Service.php">Services</a>
-            <a href="ftp://ginola@ftp-ginola.alwaysdata.net/www/client/Contact.php">Contact</a>
+            <a href="index.php">Accueil</a>
+            <a href="Voitures.php">Modèles</a>
+            <a href="demandeessai.php">Demande d'essai</a>
+            <a href="Service.php">Services</a>
+            <a href="contact.php">Contact</a>
         </nav>
     
         <div class="auth-links">
-            <a href="ftp://ginola@ftp-ginola.alwaysdata.net/www/client/Login.php">Se connecter</a>
-            <a href="ftp://ginola@ftp-ginola.alwaysdata.net/www/client/inscription.php">S'inscrire</a>
+            <a href="Login.php">Se connecter</a>
+            <a href="inscription.php">S'inscrire</a>
         </div>
     </header>
     <style> 

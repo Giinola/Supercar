@@ -31,9 +31,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             VALUES ('$nom', '$prenom', '$email', '$voiture', '$date_essai', '$Heure')";
 
     if ($bdd->query($sql) === TRUE) {
-        $message = "✅ Votre demande a été bien reçue. ";
+        $message = " Votre demande a été bien reçue. ";
     } else {
-        $message = "❌ Erreur : " . $bdd->error;
+        $message = " Erreur : " . $bdd->error;
     }
 }
 
@@ -192,7 +192,7 @@ function genererOptions($donnees) {
 
         <input type="date" name="date_essai" required>
 
-        <button type="submit"><?= $contenu['texte_bouton'] ?? '📩 Envoyer la demandede' ?></button>
+        <button type="submit"><?= $contenu['texte_bouton'] ?? ' Envoyer la demande' ?></button>
     </form>
 </div>
 

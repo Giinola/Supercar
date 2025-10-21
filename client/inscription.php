@@ -29,6 +29,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "Erreur : " . $connexion->error;
     }
 }
+
+
+$bdd->close();
 ?>
 <!DOCTYPE html>
 <html lang="fr">

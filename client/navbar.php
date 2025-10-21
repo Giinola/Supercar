@@ -16,7 +16,7 @@
         <nav class="navbar">
             <a href="index.php">Accueil</a>
             <a href="Voitures.php">Modèles</a>
-            <a href="demande.php">Demande d'essai</a>
+            <a href="demande_essai.php">Demande d'essai</a>
             <a href="Service.php">Services</a>
             <a href="contact.php">Contact</a>
         </nav>

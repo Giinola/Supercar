@@ -29,9 +29,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         echo "Erreur : " . $connexion->error;
     }
 }
-
-// Fermer la connexion
-$connexion->close();
 ?>
 <!DOCTYPE html>
 <html lang="fr">

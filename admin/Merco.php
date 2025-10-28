@@ -1,42 +1,63 @@
 <?php
-include 'menu.php'; 
-include 'db.php';
-$contenu = [];
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-   
+include 'menu.php';
+$host = "mysql-ginola.alwaysdata.net";
+$login = "ginola";
+$pass = "AlwaysGinola1";
+$dbname = "ginola_supercar";
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['save_kv'])) {
-    foreach ($_POST as $champ => $valeur) {
-    
-        if (!preg_match('/^(en_tete|nom_marque|(nom|image|descri|prix)_voiture\d+)$/', $champ)) continue;
+$bdd = new mysqli($host, $login, $pass, $dbname);
+if ($bdd->connect_error) {
+    die("Connexion échouée: " . $bdd->connect_error);
+}
 
-        $ch = $bdd->real_escape_string($champ);
-        $vl = $bdd->real_escape_string($valeur);
+// --- Supprimer une voiture ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['supprimer'])) {
+    $voitureId = (int)$_POST['supprimer'];
+    $bdd->query("DELETE FROM Mercedes WHERE id = $voitureId");
+    $_SESSION['msg'] = "✅ Suppression réussie.";
+}
 
-        $bdd->query("UPDATE `ford` SET valeur='$vl' WHERE nom_champ='$ch' LIMIT 1");
-        if ($bdd->affected_rows === 0) {
-            $bdd->query("INSERT INTO `ford` (nom_champ, valeur) VALUES ('$ch', '$vl')");
+// --- Mise à jour des données ---
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action_update_voitures'])) {
+    if (is_array($_POST['nom_complet'])) {
+        foreach ($_POST['nom_complet'] as $id => $nom_complet) {
+            $id = (int)$id;
+            $nom_complet = mysqli_real_escape_string($bdd, $nom_complet);
+            $classe = mysqli_real_escape_string($bdd, $_POST['classe'][$id]);
+            $carrosserie = mysqli_real_escape_string($bdd, $_POST['carrosserie'][$id]);
+            $description_courte = mysqli_real_escape_string($bdd, $_POST['description_courte'][$id]);
+            $chemin_image = mysqli_real_escape_string($bdd, $_POST['chemin_image'][$id]);
+            $puissance_ch = mysqli_real_escape_string($bdd, $_POST['puissance_ch'][$id]);
+            $prix_estime = mysqli_real_escape_string($bdd, $_POST['prix_estime'][$id]);
+
+            // UPDATE à l'intérieur de la boucle
+            $bdd->query("
+                UPDATE Mercedes SET 
+                    nom_complet = '$nom_complet', 
+                    classe = '$classe', 
+                    carrosserie = '$carrosserie',
+                    description_courte = '$description_courte', 
+                    chemin_image = '$chemin_image',
+                    puissance_ch = '$puissance_ch',
+                    prix_estime = '$prix_estime'
+                WHERE id = $id
+            ");
         }
-    }
-}
-    if (isset($_POST['supprimer'])) {
-        $voitureId = $_POST['supprimer'];
-        mysqli_query($bdd, "DELETE FROM mercedes WHERE nom_champ = 'nom_voiture$voitureId'");
+        $_SESSION['msg'] = "✅ Modifications enregistrées.";
     }
 }
 
-$resultats = mysqli_query($bdd, "SELECT * FROM mercedes");
-if (mysqli_num_rows($resultats) > 0) {
-    while ($ligne = mysqli_fetch_assoc($resultats)) {
-        $contenu[$ligne['nom_champ']] = $ligne['valeur'];
-    }
-} else {
-    $contenu = [];
+// --- Récupérer les voitures pour affichage ---
+$voitures = [];
+$resultats = $bdd->query("SELECT * FROM Mercedes ORDER BY id ASC");
+while ($ligne = $resultats->fetch_assoc()) {
+    $voitures[] = $ligne;
 }
+
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -50,6 +71,7 @@ if (mysqli_num_rows($resultats) > 0) {
             margin: 0;
             padding: 0;
         }
+
         h1 {
             text-align: center;
             background-color: #000;
@@ -58,6 +80,7 @@ if (mysqli_num_rows($resultats) > 0) {
             font-size: 28px;
             margin-left: 220px;
         }
+
         table {
             width: 90%;
             margin: 30px auto;
@@ -67,16 +90,21 @@ if (mysqli_num_rows($resultats) > 0) {
             overflow: hidden;
             box-shadow: 0 0 10px rgba(255, 204, 0, 0.1);
         }
-        th, td {
+
+        th,
+        td {
             padding: 15px;
             border-bottom: 1px solid #333;
         }
+
         th {
             background-color: #ffcc00;
             color: #000;
             font-size: 15px;
         }
-        input[type="text"], textarea {
+
+        input[type="text"],
+        textarea {
             width: 100%;
             background-color: #2a2a2a;
             color: #fff;
@@ -85,16 +113,19 @@ if (mysqli_num_rows($resultats) > 0) {
             border-radius: 5px;
             font-size: 14px;
         }
+
         textarea {
             resize: vertical;
             height: 80px;
         }
+
         img {
             max-width: 100px;
             margin-top: 10px;
             border-radius: 4px;
             border: 1px solid #444;
         }
+
         button {
             display: block;
             margin: 30px auto;
@@ -107,56 +138,106 @@ if (mysqli_num_rows($resultats) > 0) {
             font-weight: bold;
             cursor: pointer;
         }
+
         .main-content {
             margin-left: 220px;
             padding: 30px;
         }
     </style>
 </head>
+
 <body>
     <h1>Administration - Mercedes</h1>
-
     <div class="main-content">
-    <form method="POST" enctype="multipart/form-data">
-        <table>
-            <tr><th>Champ</th><th>Valeur</th></tr>
-            <tr><td>Texte en-tête</td><td><textarea name="en_tete"><?php echo htmlspecialchars($contenu['en_tete']) ? $contenu['en_tete'] : ''; ?></textarea></td></tr>
-            <tr><td>Nom de la marque</td><td><textarea name="nom_marque"><?php echo htmlspecialchars($contenu['nom_marque']) ? $contenu['nom_marque'] : ''; ?></textarea></td></tr>
-<?php for ($i = 1; !empty($contenu["nom_voiture$i"]); $i++): 
-  $nom  = htmlspecialchars($contenu["nom_voiture$i"], ENT_QUOTES, 'UTF-8');
-  $img  = htmlspecialchars($contenu["image_voiture$i"] ?? '', ENT_QUOTES, 'UTF-8');
-  $desc = htmlspecialchars($contenu["descri_voiture$i"] ?? '', ENT_QUOTES, 'UTF-8');
-  $prix = htmlspecialchars($contenu["prix_voiture$i"]  ?? '', ENT_QUOTES, 'UTF-8');
-?>
-  <tr>
-    <td>Nom Voiture <?= $i ?></td>
-    <td><textarea name="nom_voiture<?= $i ?>"><?= $nom ?></textarea></td>
-  </tr>
-  <tr>
-    <td>Image Voiture <?= $i ?></td>
-    <td>
-      <input type="text" name="image_voiture<?= $i ?>" value="<?= $img ?>">
-      <?php if ($img): ?><br><img src="<?= $img ?>" alt="Image voiture" style="max-width:120px;border:1px solid #444;border-radius:4px;margin-top:6px;"><?php endif; ?>
-      <br><button type="submit" name="supprimer" value="<?= $i ?>">Supprimer</button>
-    </td>
-  </tr>
-  <tr>
-    <td>Description Voiture <?= $i ?></td>
-    <td><textarea name="descri_voiture<?= $i ?>"><?= $desc ?></textarea></td>
-  </tr>
-  <tr>
-    <td>Prix Voiture <?= $i ?></td>
-    <td><textarea name="prix_voiture<?= $i ?>"><?= $prix ?></textarea></td>
-  </tr>
-<?php endfor; ?>
-<?php 
-$table_name = 'mercedes';
-include 'ajout_voiture.php';
- ?>
 
-        <button type="submit">Enregistrer les modifications</button> 
+        <form method="POST" enctype="multipart/form-data">
+            <table>
+                <?php
+
+                if (!empty($voitures)) {
+                    foreach ($voitures as $voiture) {
+                        $id = (int)$voiture['id'];
+                ?>
+                        <tr>
+                            <td colspan="2" style="background:#222; color:#fff; font-weight:bold; padding:8px 10px;">Voiture ID: <?= $id ?></td>
+                        </tr>
+
+                        <tr>
+                            <td>Nom Complet</td>
+                            <td>
+                                <textarea name="nom_complet[<?= $id ?>]"><?= htmlspecialchars($voiture['nom_complet'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Classe</td>
+                            <td><input type="text" name="classe[<?= $id ?>]" value="<?= htmlspecialchars($voiture['classe'] ?? '', ENT_QUOTES, 'UTF-8') ?>"></td>
+                        </tr>
+
+                        <tr>
+                            <td>Carrosserie</td>
+                            <td><input type="text" name="carrosserie[<?= $id ?>]" value="<?= htmlspecialchars($voiture['carrosserie'] ?? '', ENT_QUOTES, 'UTF-8') ?>"></td>
+                        </tr>
+
+                        <tr>
+                            <td>Description Courte</td>
+                            <td>
+                                <textarea name="description_courte[<?= $id ?>]"><?= htmlspecialchars($voiture['description_courte'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Chemin Image</td>
+                            <td>
+                                <input type="text" name="chemin_image[<?= $id ?>]" value="<?= htmlspecialchars($voiture['chemin_image'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                                <?php if (!empty($voiture['chemin_image'])): ?>
+                                    <br><img src="<?= htmlspecialchars($voiture['chemin_image']) ?>" alt="Image voiture" style="max-width:120px;border:1px solid #444;border-radius:4px;margin-top:6px;">
+                                <?php endif; ?>
+                            </td>
+                        </tr>
+
+                        <tr>
+                        <tr>
+                            <td>Puissance (ch)</td>
+                            <td><textarea name="puissance_ch[<?= $id ?>]"><?= htmlspecialchars($voiture['puissance_ch'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td>Prix Estimé</td>
+                            <td><textarea name="prix_estime[<?= $id ?>]"><?= htmlspecialchars($voiture['prix_estime'] ?? '', ENT_QUOTES, 'UTF-8') ?></textarea> €</td>
+                        </tr>
+                        <tr>
+                            <td colspan="2">
+                                <button type="submit" name="supprimer" value="<?= $id ?>" onclick="return confirm('Voulez-vous vraiment supprimer cette voiture ?')">Supprimer cette Voiture</button>
+                            </td>
+                        </tr>
+
+                <?php
+                    }
+                } else {
+
+                    echo '<tr><td colspan="2">Aucune voiture n\'est actuellement enregistrée.</td></tr>';
+                }
+                ?>
+
+                <tr>
+                    <td colspan="2" style="padding-top:20px;">
+                        <button type="submit" name="action_update_voitures" value="1">Enregistrer les Modifications des Voitures</button>
+                    </td>
+                </tr>
+
+            </table>
+        </form>
+
+    </div>
     </form>
     </div>
-    
+    <?php
+    $table_name = 'Mercedes';
+    include 'ajout_voiture.php';
+    ?>
+
 </body>
+
 </html>

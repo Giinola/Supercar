@@ -1,13 +1,36 @@
 <?php 
-include 'menu.php';
-include 'db.php';
 
+include 'menu.php';
+
+$host = "mysql-ginola.alwaysdata.net";  
+$login = "ginola";                   
+$pass = "AlwaysGinola1";            
+$dbname = "ginola_supercar";        
+
+// Connexion à la base de données
+$bdd = new mysqli($host, $login, $pass, $dbname);
+
+// Vérification de la connexion
+if ($bdd->connect_error) {
+    die("Connexion échouée: " . $bdd->connect_error);  
+}
+
+$error = "";
 $contenu = [];
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     foreach ($_POST as $champ => $valeur) {
-        mysqli_query($bdd, "UPDATE accueil SET valeur = '$valeur' WHERE nom_champ = '$champ'");
+        
+       
+        $champ_echappe = mysqli_real_escape_string($bdd, $champ);
+        $valeur_echappee = mysqli_real_escape_string($bdd, $valeur);
+
+       
+        $requete_sql = "UPDATE accueil SET valeur = '$valeur_echappee' WHERE nom_champ = '$champ_echappe'";
+        
+        
+        mysqli_query($bdd, $requete_sql);
     }
 }
 
@@ -16,6 +39,7 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
     $contenu[$ligne['nom_champ']] = $ligne['valeur']; 
 }
 ?>
+
 
 <style>
     body {

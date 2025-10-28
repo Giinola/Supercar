@@ -1,8 +1,21 @@
 <?php
 include 'menu.php';
-include 'db.php';
+$host = "mysql-ginola.alwaysdata.net";  
+$login = "ginola";                  
+$pass = "AlwaysGinola1";            
+$dbname = "ginola_supercar";        
+ 
+ 
+$bdd = new mysqli($host, $login, $pass, $dbname);
+ 
+ 
+if ($bdd->connect_error) {
+    die("Connexion échouée: " . $bdd->connect_error);  
+}
+ 
+
 $requete = "SELECT * FROM contacts";
-$result = mysqli_query($conn, $requete);
+$result = mysqli_query($bdd, $requete);
 ?>
 <!DOCTYPE html>
 <html lang="fr">

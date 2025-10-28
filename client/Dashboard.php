@@ -18,7 +18,7 @@ if (!isset($_SESSION['user_id'])) {
 
 <div class="dashboard">
     <div class="card">
-        <h1>Bienvenue sur votre tableau de bord !
+        <h1>Supercar vous souhaite la bienvenue !
             Prenez le volant
         </h1>
         <p>Ravi de vous revoir. Profitez pleinement de nos services.</p>

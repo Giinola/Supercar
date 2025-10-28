@@ -1,9 +1,22 @@
 <?php
 include 'menu.php'; 
-include 'db.php';
-$total_users = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM utilisateur"));
-$total_essais = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM demandes_essai"));
-$total_messages = mysqli_num_rows(mysqli_query($conn, "SELECT * FROM contacts"));
+$host = "mysql-ginola.alwaysdata.net";  
+$login = "ginola";                  
+$pass = "AlwaysGinola1";            
+$dbname = "ginola_supercar";        
+ 
+ 
+$bdd = new mysqli($host, $login, $pass, $dbname);
+ 
+ 
+if ($bdd->connect_error) {
+    die("Connexion échouée: " . $bdd->connect_error);  
+}
+ 
+
+$total_users = mysqli_num_rows(mysqli_query($bdd, "SELECT * FROM utilisateur"));
+$total_essais = mysqli_num_rows(mysqli_query($bdd, "SELECT * FROM demandes_essai"));
+$total_messages = mysqli_num_rows(mysqli_query($bdd, "SELECT * FROM contacts"));
 
 ?>
 

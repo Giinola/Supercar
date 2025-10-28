@@ -1,48 +1,66 @@
 <?php
+// Connexion à la base de données
+$host = "mysql-ginola.alwaysdata.net";  
+$login = "ginola";                   
+$pass = "AlwaysGinola1";            
+$dbname = "ginola_supercar";        
 
+$bdd = new mysqli($host, $login, $pass, $dbname);
 
-if (!isset($table_name) || $table_name === '') { die("Définis \$table_name"); }
+if ($bdd->connect_error) {
+    die("Connexion échouée: " . $bdd->connect_error);  
+}
+$bdd->set_charset('utf8mb4'); // Utilisation de l'UTF8 pour les accents et caractères spéciaux
 
-include 'db.php';
+// Message de succès ou d'erreur
 $msg = '';
 
-// Soumission (ajout d'une nouvelle voiture)
-if (!empty($_POST['add_car']) && ($_POST['table'] ?? '') === $table_name) {
-  $nom   = mysqli_real_escape_string($conn, trim($_POST['nom'] ?? ''));
-  $image = mysqli_real_escape_string($conn, trim($_POST['image'] ?? ''));
-  $desc  = mysqli_real_escape_string($conn, trim($_POST['description'] ?? ''));
-  $prix  = mysqli_real_escape_string($conn, trim($_POST['prix'] ?? ''));
-  $annee = mysqli_real_escape_string($conn, trim($_POST['annee'] ?? ''));
+// Soumission du formulaire pour ajouter une nouvelle voiture
+if (
+    $_SERVER['REQUEST_METHOD'] === 'POST'
+    && isset($_POST['add_car'])
+    && isset($_POST['table']) 
+    && !empty($_POST['table']) // Vérifie que la table est définie
+) {
+    $table_name = $_POST['table']; // La table dépend du choix de la marque
 
-  if ($nom === '') {
-    $msg = "Le nom du modèle est obligatoire.";
-  } else {
-    // N = MAX(nom_voitureN) + 1  (SQL direct, simple)
-    $q = "SELECT MAX(CAST(SUBSTRING(nom_champ,12) AS UNSIGNED)) AS m
-          FROM `$table_name` WHERE nom_champ LIKE 'nom_voiture%'";
-    $r = mysqli_query($conn, $q);
-    $row = $r ? mysqli_fetch_assoc($r) : ['m'=>0];
-    $N = (int)($row['m'] ?? 0) + 1;
+    // Nettoyage des données d'entrée
+    $nom_complet        = mysqli_real_escape_string($bdd, trim($_POST['nom_complet'] ?? ''));
+    $classe             = mysqli_real_escape_string($bdd, trim($_POST['classe'] ?? ''));
+    $carrosserie        = mysqli_real_escape_string($bdd, trim($_POST['carrosserie'] ?? ''));
+    $description_courte = mysqli_real_escape_string($bdd, trim($_POST['description_courte'] ?? ''));
+    $chemin_image       = mysqli_real_escape_string($bdd, trim($_POST['chemin_image'] ?? ''));
+    $puissance_ch       = mysqli_real_escape_string($bdd, trim($_POST['puissance_ch'] ?? ''));
+    $prix_estime        = mysqli_real_escape_string($bdd, trim($_POST['prix_estime'] ?? ''));
 
-    // Insérer les paires (on évite les entrées vides, sauf nom)
-    $ok = mysqli_query($conn, "INSERT INTO `$table_name` (nom_champ, valeur) VALUES ('nom_voiture$N', '$nom')");
-    if ($ok && $image !== '') $ok = mysqli_query($conn, "INSERT INTO `$table_name` (nom_champ, valeur) VALUES ('image_voiture$N', '$image')");
-    if ($ok && $desc  !== '') $ok = mysqli_query($conn, "INSERT INTO `$table_name` (nom_champ, valeur) VALUES ('descri_voiture$N', '$desc')");
-    if ($ok && $prix  !== '') $ok = mysqli_query($conn, "INSERT INTO `$table_name` (nom_champ, valeur) VALUES ('prix_voiture$N',  '$prix')");
-    if ($ok && $annee !== '') $ok = mysqli_query($conn, "INSERT INTO `$table_name` (nom_champ, valeur) VALUES ('annee_voiture$N', '$annee')");
-
-    $msg = $ok ? "Voiture #$N ajoutée." : ("Erreur: ".mysqli_error($conn));
-    if ($ok) $_POST = []; // vider le formulaire après succès
-  }
+    // Vérification si le nom du modèle est bien rempli
+    if ($nom_complet === '') {
+        $_SESSION['msg'] = "Le nom du modèle est obligatoire."; // Message d'erreur
+    } else {
+        // Insertion dans la table sélectionnée dynamiquement
+        $sql = "INSERT INTO `$table_name` (nom_complet, classe, carrosserie, description_courte, chemin_image, puissance_ch, prix_estime) 
+                VALUES ('$nom_complet', '$classe', '$carrosserie', '$description_courte', '$chemin_image', '$puissance_ch', '$prix_estime')";
+        
+        // Exécution de la requête SQL
+        $ok = mysqli_query($bdd, $sql);
+        
+        if ($ok) {
+            $_SESSION['msg'] = "✅ Voiture ajoutée avec succès."; // Message de succès
+            // Rediriger l'utilisateur pour éviter la soumission multiple
+        } else {
+            $_SESSION['msg'] = "⚠️ Erreur: " . mysqli_error($bdd); // Message d'erreur SQL
+        }
+    }
 }
 ?>
 
+<!DOCTYPE html>
+<html lang="fr">
 <style>
-/* -- Formulaire centré, dans le flux (pas fixed), sans chevauchement -- */
 .addcar { width:100%; box-sizing:border-box; padding: 0 16px; }
 .addcar-card{
   max-width: 860px;
-  margin: 24px auto 120px; /* le 120px évite d’être collé au bas s’il y a une barre de nav */
+  margin: 24px auto 120px;
   background: #1e1e1e;
   border: 1px solid #444;
   border-radius: 12px;
@@ -70,61 +88,79 @@ if (!empty($_POST['add_car']) && ($_POST['table'] ?? '') === $table_name) {
   margin-bottom:10px; display:inline-block;
 }
 
-/* Responsive: si ta page n’a pas déjà de marge pour la sidebar, rien n’est chevauché
-   et si elle en a (ex: .main-content{margin-left:220px}), on n’ajoute rien ici. */
 @media (max-width: 992px){
   .addcar-card{ margin:16px auto 100px; }
 }
 </style>
-
 <div class="addcar">
-  <div class="addcar-card">
-    <h2>Ajouter une nouvelle voiture</h2>
+    <div class="addcar-card">
+        <h2>Ajouter une nouvelle voiture</h2>
 
-    <?php if (!empty($msg)): ?>
-      <div class="flash"><?php echo htmlspecialchars($msg); ?></div>
-    <?php endif; ?>
+        <!-- Affichage du message de succès ou d'erreur -->
+        <?php if (isset($_SESSION['msg'])): ?>
+            <div class="flash"><?php echo htmlspecialchars($_SESSION['msg']); ?></div>
+            <?php unset($_SESSION['msg']); // Supprime le message après l'affichage ?>
+        <?php endif; ?>
 
-    <form method="post">
-      <input type="hidden" name="table" value="<?php echo htmlspecialchars($table_name); ?>">
+       <form method="post" action="" enctype="multipart/form-data">
+            <input type="hidden" name="table" value="voiture">
 
-      <div class="row">
-        <div class="col">
-          <label>Nom du modèle *</label>
-          <input type="text" name="nom" required
-                 value="<?php echo isset($_POST['nom'])?htmlspecialchars($_POST['nom']):''; ?>">
-        </div>
-        <div class="col">
-          <label>Année (optionnel)</label>
-          <input type="text" name="annee"
-                 value="<?php echo isset($_POST['annee'])?htmlspecialchars($_POST['annee']):''; ?>">
-        </div>
-      </div>
+            <!-- Choisir la marque de la voiture -->
+            <div class="row">
+                <div class="col">
+                    <label for="table">Choisir la marque de la voiture *</label>
+                    <select id="table" name="table" required>
+                        <option value="Mercedes">Mercedes</option>
+                        <option value="ferrari">ferrari</option>
+                        <option value="range_rover">Range Rover</option>
+                        <option value="mclaren">McLaren</option>
+                    </select>
+                </div>
+            </div>
 
-      <div class="row">
-        <div class="col">
-          <label>URL de l'image</label>
-          <input type="text" name="image"
-                 value="<?php echo isset($_POST['image'])?htmlspecialchars($_POST['image']):''; ?>">
-        </div>
-        <div class="col">
-          <label>Prix (texte)</label>
-          <input type="text" name="prix"
-                 value="<?php echo isset($_POST['prix'])?htmlspecialchars($_POST['prix']):''; ?>">
-        </div>
-      </div>
+            <div class="row">
+                <div class="col">
+                    <label for="nom_complet">Nom Complet *</label>
+                    <input type="text" id="nom_complet" name="nom_complet" required>
+                </div>
+                <div class="col">
+                    <label for="classe">Classe</label>
+                    <input type="text" id="classe" name="classe">
+                </div>
+            </div>
 
-      <div class="row">
-        <div class="col" style="min-width:100%;">
-          <label>Description</label>
-          <textarea name="description"><?php
-            echo isset($_POST['description'])?htmlspecialchars($_POST['description']):''; ?></textarea>
-        </div>
-      </div>
+            <div class="row">
+                <div class="col">
+                    <label for="chemin_image">Chemin de l'image</label>
+                    <input type="text" id="chemin_image" name="chemin_image">
+                </div>
+                <div class="col">
+                    <label for="prix_estime">Prix Estimé</label>
+                    <input type="text" id="prix_estime" name="prix_estime">
+                </div>
+            </div>
 
-      <div class="actions">
-        <button type="submit" name="add_car" value="1">Ajouter</button>
-      </div>
-    </form>
-  </div>
+            <div class="row">
+                <div class="col">
+                    <label for="carrosserie">Carrosserie</label>
+                    <input type="text" id="carrosserie" name="carrosserie">
+                </div>
+                <div class="col">
+                    <label for="puissance_ch">Puissance (ch)</label>
+                    <input type="text" id="puissance_ch" name="puissance_ch">
+                </div>
+            </div>
+
+           <div class="row">
+                <div class="col" style="min-width:100%;">
+                    <label for="description_courte">Description Courte</label>
+                    <textarea id="description_courte" name="description_courte"></textarea>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button type="submit" name="add_car" value="1">Ajouter la voiture</button>
+            </div>
+        </form>
+    </div>
 </div>

@@ -1,40 +1,50 @@
 <?php
 session_start();
+
+// Si l'utilisateur est déjà connecté, le rediriger directement vers 'DE.php'
 if (isset($_SESSION['user_id'])) {
-    header("Location: " . ($_GET['redirect'] ?? 'dashboard.php'));  // Redirection après connexion
+    header("Location: DE.php");  // Redirige directement vers DE.php
     exit();
 }
+
 $host = "mysql-ginola.alwaysdata.net";  
-$login = "ginola";                  
+$login = "ginola";                   
 $pass = "AlwaysGinola1";            
 $dbname = "ginola_supercar";        
- 
- 
+
+// Connexion à la base de données
 $bdd = new mysqli($host, $login, $pass, $dbname);
- 
- 
+
+// Vérifier la connexion à la base de données
 if ($bdd->connect_error) {
     die("Connexion échouée: " . $bdd->connect_error);  
 }
- 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = $_POST['email'];
-    $mot_de_passe = $_POST['mot_de_passe'];
-
-    $sql = "SELECT id FROM utilisateur WHERE email = '$email' AND mot_de_passe = '$mot_de_passe'";
-    $result = $bdd->query($sql);
-
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
-        $_SESSION['user_id'] = $user['id'];
-
-        // Vérifier s'il y a une redirection en attente
-        $redirect = isset($_GET['redirect']) ? $_GET['redirect'] : 'dashboard.php';
-        header("Location: $redirect");
-        exit();
+    // Récupérer et valider les entrées
+    $email = filter_var($_POST['email'], FILTER_VALIDATE_EMAIL);  // Validation de l'email
+    if (!$email) {
+        $error_message = "L'email est invalide";
     } else {
-        $error_message = "Identifiants incorrects";
+        $mot_de_passe = $_POST['mot_de_passe'];
+
+        // Utilisation de requêtes préparées pour éviter l'injection SQL
+        $sql = "SELECT id FROM utilisateur WHERE email = ? AND mot_de_passe = ?";
+        $stmt = $bdd->prepare($sql);
+        $stmt->bind_param("ss", $email, $mot_de_passe);  // "ss" signifie que les deux paramètres sont des chaînes
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $user = $result->fetch_assoc();
+            $_SESSION['user_id'] = $user['id'];
+
+            // Une fois connecté, redirige vers DE.php
+            header("Location: DE.php");
+            exit();
+        } else {
+            $error_message = "Identifiants incorrects";
+        }
     }
 }
 ?>
@@ -49,9 +59,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 <body>
 
 <h2>Connexion</h2>
+    <h5>Veillez vous connecter pour profiter du service</h5>
 <?php if (isset($error_message)) echo "<p style='color:red;'>$error_message</p>"; ?>
 
-<form action="login.php?redirect=<?php echo $_GET['redirect'] ?? ''; ?>" method="POST">
+<form action="login.php" method="POST">
     <label>Email :</label>
     <input type="email" name="email" required>
 

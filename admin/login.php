@@ -1,19 +1,28 @@
 <?php
-include 'db.php';
- 
-if (!$conn) {
-    die("Erreur de connexion à la base de données.");
-}
- 
-$error = "";
- 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nom_utilisateur = mysqli_real_escape_string($conn, $_POST['nom_utilisateur']);
-    $mot_de_passe = mysqli_real_escape_string($conn, $_POST['mot_de_passe']);
+$host = "mysql-ginola.alwaysdata.net";  
+$login = "ginola";                   
+$pass = "AlwaysGinola1";            
+$dbname = "ginola_supercar";        
 
+// Connexion à la base de données
+$bdd = new mysqli($host, $login, $pass, $dbname);
+
+// Vérification de la connexion
+if ($bdd->connect_error) {
+    die("Connexion échouée: " . $bdd->connect_error);  
+}
+
+$error = "";
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    // Remplacer $conn par $bdd pour la connexion à la base de données
+    $nom_utilisateur = mysqli_real_escape_string($bdd, $_POST['nom_utilisateur']);
+    $mot_de_passe = mysqli_real_escape_string($bdd, $_POST['mot_de_passe']);
+
+    // Requête SQL pour vérifier les identifiants
     $query = "SELECT * FROM admin WHERE nom = '$nom_utilisateur' AND mot_de_passe = '$mot_de_passe'";
-    $result = mysqli_query($conn, $query);
- 
+    $result = mysqli_query($bdd, $query);
+
     if (mysqli_num_rows($result) == 1) {
         $_SESSION['admin'] = $nom_utilisateur;
         header("Location: admin_acceuil.php");
@@ -151,5 +160,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
  
 </body>
 </html>
- 
- 

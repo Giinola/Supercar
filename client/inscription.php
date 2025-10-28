@@ -30,7 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 }
 
-
+// Fermer la connexion
 $bdd->close();
 ?>
 <!DOCTYPE html>

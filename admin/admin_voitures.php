@@ -1,6 +1,19 @@
 <?php
 include 'menu.php';
-include 'db.php';
+$host = "mysql-ginola.alwaysdata.net";  
+$login = "ginola";                  
+$pass = "AlwaysGinola1";            
+$dbname = "ginola_supercar";        
+ 
+ 
+$bdd = new mysqli($host, $login, $pass, $dbname);
+ 
+ 
+if ($bdd->connect_error) {
+    die("Connexion échouée: " . $bdd->connect_error);  
+}
+ 
+
 
 $contenu = [];
 
@@ -122,10 +135,10 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
 </head>
 <body>
 <div class="menu-marques">
-  <a class="bouton-marque" href="merco.php">Mercedes</a>
-  <a class="bouton-marque" href="Ford.php">Ford</a>
-  <a class="bouton-marque" href="nissan.php">Nissan</a>
-  <a class="bouton-marque" href="toyota.php">Toyota</a>
+  <a class="bouton-marque" href="Merco.php">Mercedes</a>
+  <a class="bouton-marque" href="range rove.php">Range Rover</a>
+  <a class="bouton-marque" href="mclaren.php">Mc Laren</a>
+  <a class="bouton-marque" href="ferrari.php">Ferrari</a>
 </div>
 
 <div class="topbar"> Administration - Page Voitures</div>
@@ -139,7 +152,7 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
     <tr><td>Description</td><td><textarea name="description_page"><?= isset($contenu['description_page']) ? $contenu['description_page'] : '' ?></textarea></td></tr>
 
     <?php
-    $marques = ['ford', 'nissan', 'mercedes', 'toyota'];
+    $marques = ['Range Rover', 'ferrari', 'mercedes', 'mclaren'];
     foreach ($marques as $marque) {
         echo "<tr><td>Nom " . ucfirst($marque) . "</td><td><input type='text' name='{$marque}_nom' value='" . (isset($contenu["{$marque}_nom"]) ? $contenu["{$marque}_nom"] : '') . "'></td></tr>";
         echo "<tr><td>Image " . ucfirst($marque) . "</td><td><input type='text' name='{$marque}_image' value='" . (isset($contenu["{$marque}_image"]) ? $contenu["{$marque}_image"] : '') . "'><br><img src='" . (isset($contenu["{$marque}_image"]) ? $contenu["{$marque}_image"] : '') . "' alt=''></td></tr>";

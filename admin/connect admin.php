@@ -6,7 +6,20 @@ if (isset($_SESSION['user_id'])) {
     exit();
 }
 
-include('db.php'); 
+$host = "mysql-ginola.alwaysdata.net";  
+$login = "ginola";                  
+$pass = "AlwaysGinola1";            
+$dbname = "ginola_supercar";        
+ 
+ 
+$bdd = new mysqli($host, $login, $pass, $dbname);
+ 
+ 
+if ($bdd->connect_error) {
+    die("Connexion échouée: " . $bdd->connect_error);  
+}
+ 
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $email = $_POST['email'];

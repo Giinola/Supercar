@@ -1,12 +1,24 @@
 <?php
 include 'menu.php';
-include 'db.php';
+$host = "mysql-ginola.alwaysdata.net";  
+$login = "ginola";                  
+$pass = "AlwaysGinola1";            
+$dbname = "ginola_supercar";        
+ 
+ 
+$bdd = new mysqli($host, $login, $pass, $dbname);
+ 
+ 
+if ($bdd->connect_error) {
+    die("Connexion échouée: " . $bdd->connect_error);  
+}
+ 
 
 // Mise à jour du statut (version très simple)
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'], $_POST['new_status'])) {
   $id = (int)$_POST['id'];
   $new = $_POST['new_status'] === 'approuve' ? 'approuve' : 'refuse'; // whitelist basique
-  mysqli_query($conn, "UPDATE demandes_essai SET status='$new' WHERE id=$id");
+  mysqli_query($bdd, "UPDATE demandes_essai SET status='$new' WHERE id=$id");
 }
 
 // Récupération des demandes
@@ -14,7 +26,7 @@ $sql = "SELECT id, nom, email, voiture, date_essai, COALESCE(heure, Heure) AS he
                IFNULL(status,'en_attente') AS status
         FROM demandes_essai
         ORDER BY date_essai DESC, id DESC";
-$result = mysqli_query($conn, $sql);
+$result = mysqli_query($bdd, $sql);
 ?>
 <!DOCTYPE html>
 <html lang="fr">

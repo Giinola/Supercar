@@ -2,7 +2,7 @@
 session_start();
 
 if (isset($_SESSION['user_id'])) {
-    header("Location: dashboard.php");
+    header("Location:Dashboard.php");
     exit();
 }
 
@@ -29,7 +29,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if ($result->num_rows > 0) {
         $user = $result->fetch_assoc();
         $_SESSION['user_id'] = $user['id'];
-        header("Location: dashboard.php");
+        header("Location: Dashboard.php");
         exit(); 
     } else {
         $error_message = "Identifiants incorrects";
@@ -226,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <p class="error-message"><?php echo $error_message; ?></p>
     <?php endif; ?>
 
-    <form action="login.php" method="POST">
+    <form action="Login.php" method="POST">
         <label for="email">Email:</label>
         <input type="email" name="email" required>
 

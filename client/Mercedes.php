@@ -14,9 +14,14 @@ if ($bdd->connect_error) {
  
 
 $contenu = [];
-$resultats = mysqli_query($bdd, "SELECT * FROM mercedes");
-while ($ligne = mysqli_fetch_assoc($resultats)) {
-    $contenu[$ligne['nom_champ']] = $ligne['valeur'];
+$resultats = mysqli_query($bdd, "SELECT * FROM Mercedes"); 
+
+
+if ($resultats) {
+    while ($ligne = mysqli_fetch_assoc($resultats)) {
+
+        $contenu[$ligne['id']] = $ligne;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -54,6 +59,26 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
             max-width: 900px;
             margin: 0 auto 40px;
         }
+        .marque-info {
+    padding: 30px;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.marque-nom {
+    color: #000;
+    font-size: 2.5em;
+    margin: 0 0 15px 0;
+    font-weight: bold;
+}
+
+.marque-description {
+    color: #000;
+    font-size: 1.1em;
+    line-height: 1.6;
+    margin: 0;
+    font-weight: normal;
+}
 
         .car-models {
             display: flex;
@@ -261,6 +286,27 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
                 text-decoration: none;
                 transition: color 0.3s;
               }
+              .info-button {
+                  background-color: #555;
+                  color: white;
+                  border: none;
+                  border-radius: 6px;
+                  padding: 8px 14px;
+                  cursor: pointer;
+              }
+              .info-button {
+             margin-left: 10px;
+              }
+
+              .extra-info {
+              margin-top: 10px;
+              font-size: 0.95em;
+              color: #333;
+              background: #f8f8f8;
+               padding: 10px;
+             border-radius: 8px;
+          }
+
           
               .footer-links a:hover {
                 color: #ff5733;
@@ -279,6 +325,19 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
               }
     </style>
 </head>
+<script>
+function toggleInfo(button) {
+    const infoDiv = button.closest('.car-card').querySelector('.extra-info');
+    if (infoDiv.style.display === 'none' || infoDiv.style.display === '') {
+        infoDiv.style.display = 'block';
+        button.textContent = 'Masquer les infos';
+    } else {
+        infoDiv.style.display = 'none';
+        button.textContent = 'En savoir plus';
+    }
+}
+</script>
+
 <body>
     <header>
 <?php include "navbar.php"; ?>
@@ -290,35 +349,50 @@ while ($ligne = mysqli_fetch_assoc($resultats)) {
 
     <section class="brand ford">
     <p style="text-align:center; max-width:800px; margin:0 auto 30px;">
-    <?php echo $contenu['en_tete']; ?>
 </p>
-            <h1><?php echo $contenu['nom_marque']; ?></h1>
+<div class="marque-info">
 
+        <h1>MERCEDES</h1>
+        <p>Mercedes-Benz est un constructeur automobile allemand de prestige fondé en 1926. La marque est reconnue mondialement pour son excellence en ingénierie, son luxe raffiné et ses innovations technologiques. Elle propose une gamme complète allant des berlines premium aux SUV, en passant par les sportives AMG haute performance.</p>
+    
+</div>
             <div class="car-models">
 <?php
-for ($i = 1; !empty($contenu["nom_voiture$i"]); $i++) {
-    $nom = trim($contenu["nom_voiture$i"]);
-    $img = trim($contenu["image_voiture$i"] ?? '');
+foreach ($contenu as $voiture) {
+    $nom = trim($voiture['nom_complet']);
+    $img = trim($voiture['chemin_image'] ?? '');
     if ($img !== '') $img = str_replace(' ', '%20', $img);
-    $desc = $contenu["descri_voiture$i"] ?? 'Description non disponible';
-    $prix = $contenu["prix_voiture$i"]  ?? 'Prix non disponible';
+    $desc = $voiture['description_courte'] ?? 'Description non disponible';
+    $prix = $voiture['prix_estime'] ?? 'Prix non disponible';
+    $puissance = $voiture['puissance_ch'] ?? 'Puissance non disponible';
+    $classe = $voiture['classe'] ?? 'Classe non disponible';
+    $carrosserie = $voiture['carrosserie'] ?? 'Carrosserie non disponible';
 
-    $nomH  = htmlspecialchars($nom, ENT_QUOTES, 'UTF-8');
+    // Sécuriser les valeurs
+    $nom_completH  = htmlspecialchars($nom, ENT_QUOTES, 'UTF-8');
     $imgH  = htmlspecialchars($img, ENT_QUOTES, 'UTF-8');
     $descH = htmlspecialchars($desc, ENT_QUOTES, 'UTF-8');
     $prixH = htmlspecialchars($prix, ENT_QUOTES, 'UTF-8');
+    $puissanceH = htmlspecialchars($puissance, ENT_QUOTES, 'UTF-8');
+    $classeH = htmlspecialchars($classe, ENT_QUOTES, 'UTF-8');
+    $carrosserieH = htmlspecialchars($carrosserie, ENT_QUOTES, 'UTF-8');
     ?>
     <div class="car-card">
-        <h4><?= $nomH ?></h4>
-        <?php if ($imgH): ?><img src="<?= $imgH ?>" alt="<?= $nomH ?>"><?php endif; ?>
+        <h4><?= $nom_completH ?></h4>
+        <?php if ($imgH): ?><img src="<?= $imgH ?>" alt="<?= $nom_completH ?>"><?php endif; ?>
         <p><?= $descH ?></p>
-        <p><strong>PRIX: <?= $prixH ?></strong></p>
+        <p><strong>PRIX: <?= $prixH ?>$</strong></p>
         <div class="try-button-container">
-            <a href="demande_essai.php?modele=<?= urlencode($nom) ?>" class="try-button">Essayer</a>
+            <a href="DE.php?modele=<?= urlencode($nom) ?>" class="try-button">Essayer</a>
+            <button class="info-button" onclick="toggleInfo(this)">En savoir plus</button>
+            <div class="extra-info" style="display:none;">
+                <p><strong>Puissance :</strong> <?= $puissanceH ?></p>
+                <p><strong>Classe :</strong> <?= $classeH ?></p>
+                <p><strong>Carrosserie :</strong> <?= $carrosserieH ?></p>
+            </div>
         </div>
     </div>
 <?php } ?>
-</div>
 
 </div>
 </div>

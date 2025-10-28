@@ -1,12 +1,25 @@
 <?php
 include 'menu.php'; 
-include 'db.php';
+$host = "mysql-ginola.alwaysdata.net";  
+$login = "ginola";                  
+$pass = "AlwaysGinola1";            
+$dbname = "ginola_supercar";        
+ 
+ 
+$bdd = new mysqli($host, $login, $pass, $dbname);
+ 
+ 
+if ($bdd->connect_error) {
+    die("Connexion échouée: " . $bdd->connect_error);  
+}
+ 
+
  $requete="SELECT* FROM utilisateur";
- $resultats=mysqli_query($connexion, $requete);
+ $resultats=mysqli_query($bdd, $requete);
  // Suppression
 if (isset($_POST['supprimer_id'])) {
     $id = intval($_POST['supprimer_id']);
-    $stmt = $connexion->prepare("DELETE FROM utilisateur WHERE id = ?");
+    $stmt = $bdd->prepare("DELETE FROM utilisateur WHERE id = ?");
     $stmt->bind_param("i", $id);
     $stmt->execute();
 }
@@ -19,7 +32,7 @@ if (isset($_POST['modifier_id'])) {
     $nom_utilisateur = $_POST['nom_utilisateur'];
     $mot_de_passe = $_POST['mot_de_passe'];
 
-    $stmt = $connexion->prepare("UPDATE utilisateur SET nom=?, prenom=?, email=?, nom_utilisateur=?, mot_de_passe=? WHERE id=?");
+    $stmt = $bdd->prepare("UPDATE utilisateur SET nom=?, prenom=?, email=?, nom_utilisateur=?, mot_de_passe=? WHERE id=?");
     $stmt->bind_param("sssssi", $nom, $prenom, $email, $nom_utilisateur, $mot_de_passe, $id);
     $stmt->execute();
 }

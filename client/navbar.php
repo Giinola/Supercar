@@ -224,6 +224,7 @@
         <a href="Voitures.php">Modèles</a>
         <a href="DE.php">Demande d'essai</a>
         <a href="Service.php">Services</a>
+        <a href="Evenements.php">Événements</a>
         <a href="contact.php">Contact</a>
     </nav>
 

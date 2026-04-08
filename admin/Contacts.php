@@ -71,7 +71,7 @@ $result = mysqli_query($bdd, $requete);
             <td><?php echo htmlspecialchars($row['nom']); ?></td>
             <td><?php echo htmlspecialchars($row['adresse']); ?></td>
             <td><?php echo htmlspecialchars($row['email']); ?></td>
-            <td><?php echo htmlspecialchars($row['messages']); ?></td>
+            <td><?php echo htmlspecialchars($row['message']); ?></td>
           </tr>
           <?php } ?>
         </tbody>

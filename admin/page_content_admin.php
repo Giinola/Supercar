@@ -1,9 +1,24 @@
 <?php
+// =====================================================
+//  page_content_admin.php — Helper réutilisable
+//  Pour les pages d'administration de type clé/valeur
+//  (admin_voitures, Admin_contact, admin_essai, ...)
+//
+//  Variables attendues avant inclusion :
+//    $page_table          : nom de la table SQL
+//    $page_titre          : titre principal
+//    $page_eyebrow        : surtitre
+//    $page_subtitle       : description sous le titre
+//    $page_sections       : tableau des sections avec leurs champs
+//
+//  Variable optionnelle :
+//    $page_set_admin_user : true pour exécuter SET @admin_user
+//                          (utile si un trigger MySQL enregistre
+//                           qui a fait la modification)
+// =====================================================
+ 
 session_start();
  
-// =====================================================
-//  SÉCURITÉ — Vérifier que l'admin est connecté
-// =====================================================
 if (!isset($_SESSION['admin'])) {
     header("Location: login.php");
     exit();
@@ -11,11 +26,15 @@ if (!isset($_SESSION['admin'])) {
  
 require_once 'db.php';
  
-// =====================================================
-//  SÉCURITÉ — Token CSRF
-// =====================================================
+// Token CSRF
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(16));
+}
+ 
+// Liste blanche des tables autorisées
+$tables_autorisees = ['voitures', 'contact_contenu', 'essai', 'services', 'accueil'];
+if (!in_array($page_table, $tables_autorisees, true)) {
+    die("Table non autorisée.");
 }
  
 include 'menu.php';
@@ -24,17 +43,16 @@ $success = false;
 $error = '';
 $contenu = [];
  
-// =====================================================
-//  SÉCURITÉ — Liste blanche des champs autorisés
-// =====================================================
-$champs_autorises = [
-    'titre_accueil', 'texte_accueil', 'image_accueil',
-    'titre_apropos', 'p1_apropos', 'p2_apropos',
-    'bouton_apropos', 'image_apropos', 'carousel_item'
-];
+// Construire la liste blanche des champs à partir des sections
+$champs_autorises = [];
+foreach ($page_sections as $section) {
+    foreach ($section['fields'] as $field) {
+        $champs_autorises[] = $field['name'];
+    }
+}
  
 // =====================================================
-//  Traitement du formulaire (PDO + requêtes préparées)
+//  Traitement du formulaire
 // =====================================================
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
  
@@ -42,7 +60,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = "Erreur de sécurité. Veuillez recharger la page.";
     } else {
         try {
-            $stmt = $pdo->prepare("UPDATE accueil SET valeur = :valeur WHERE nom_champ = :nom_champ");
+            // Si la page utilise un trigger d'audit, on définit
+            // la variable de session MySQL @admin_user avant les UPDATE
+            if (!empty($page_set_admin_user)) {
+                $stmt_user = $pdo->prepare("SET @admin_user = :admin");
+                $stmt_user->execute([':admin' => $_SESSION['admin']]);
+            }
+ 
+            $stmt = $pdo->prepare("UPDATE `$page_table` SET valeur = :valeur WHERE nom_champ = :nom_champ");
  
             foreach ($_POST as $champ => $valeur) {
                 if (!in_array($champ, $champs_autorises, true)) continue;
@@ -64,14 +89,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // =====================================================
 //  Récupération des contenus
 // =====================================================
-$resultats = $pdo->query("SELECT nom_champ, valeur FROM accueil");
-foreach ($resultats as $ligne) {
-    $contenu[$ligne['nom_champ']] = $ligne['valeur'];
+try {
+    $resultats = $pdo->query("SELECT nom_champ, valeur FROM `$page_table`");
+    foreach ($resultats as $ligne) {
+        $contenu[$ligne['nom_champ']] = $ligne['valeur'];
+    }
+} catch (PDOException $e) {
+    $error = "Impossible de charger les données.";
 }
  
-// Helper anti-XSS
+// Helpers anti-XSS
 function v($contenu, $key) {
     return htmlspecialchars($contenu[$key] ?? '', ENT_QUOTES, 'UTF-8');
+}
+function h($value) {
+    return htmlspecialchars($value ?? '', ENT_QUOTES, 'UTF-8');
 }
 ?>
 <!DOCTYPE html>
@@ -79,7 +111,7 @@ function v($contenu, $key) {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SuperCar — Administration de l'accueil</title>
+<title>SuperCar — <?= h($page_titre) ?></title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -221,9 +253,7 @@ function v($contenu, $key) {
     }
  
     /* Form */
-    form {
-        animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both;
-    }
+    form { animation: fadeUp 1s cubic-bezier(0.2, 0.8, 0.2, 1) 0.2s both; }
  
     .section {
         background: var(--bg-card);
@@ -316,7 +346,6 @@ function v($contenu, $key) {
         color: #444;
     }
  
-    /* Image preview */
     .image-preview {
         margin-top: 18px;
         padding: 14px;
@@ -430,7 +459,7 @@ function v($contenu, $key) {
         <div class="toast-icon">✓</div>
         <div class="toast-text">
             <strong>Modifications enregistrées</strong>
-            <small>La page d'accueil a été mise à jour avec succès</small>
+            <small>La page a été mise à jour avec succès</small>
         </div>
     </div>
 <?php elseif ($error): ?>
@@ -438,7 +467,7 @@ function v($contenu, $key) {
         <div class="toast-icon">!</div>
         <div class="toast-text">
             <strong>Erreur</strong>
-            <small><?= htmlspecialchars($error) ?></small>
+            <small><?= h($error) ?></small>
         </div>
     </div>
 <?php endif; ?>
@@ -446,130 +475,50 @@ function v($contenu, $key) {
 <div class="main-content">
  
     <header class="page-header">
-        <div class="eyebrow">Administration</div>
-        <h1>Page <span class="accent">d'accueil</span></h1>
-        <p class="page-subtitle">
-            Modifiez les contenus affichés sur la page d'accueil du site SuperCar.
-            Toutes les modifications sont enregistrées en base de données dès la validation.
-        </p>
+        <div class="eyebrow"><?= h($page_eyebrow) ?></div>
+        <h1>Page <span class="accent"><?= h($page_titre) ?></span></h1>
+        <p class="page-subtitle"><?= h($page_subtitle) ?></p>
     </header>
  
     <form method="POST" action="">
-        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
+        <input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token']) ?>">
  
-        <!-- Section Hero -->
-        <section class="section">
-            <div class="section-header">
-                <span class="section-number">— I</span>
-                <h2 class="section-title">Section Hero</h2>
-                <span class="section-desc">Bannière principale du site</span>
-            </div>
- 
-            <div class="field">
-                <div class="field-label">
-                    <span>Titre principal</span>
-                    <span class="field-counter" data-for="titre_accueil">0</span>
+        <?php $section_index = 0; ?>
+        <?php foreach ($page_sections as $section): $section_index++; ?>
+            <section class="section">
+                <div class="section-header">
+                    <span class="section-number">— <?= str_pad($section_index, 2, '0', STR_PAD_LEFT) ?></span>
+                    <h2 class="section-title"><?= h($section['title']) ?></h2>
+                    <?php if (!empty($section['desc'])): ?>
+                        <span class="section-desc"><?= h($section['desc']) ?></span>
+                    <?php endif; ?>
                 </div>
-                <input type="text" name="titre_accueil" value="<?= v($contenu, 'titre_accueil') ?>" placeholder="Bienvenue chez SuperCar">
-            </div>
  
-            <div class="field">
-                <div class="field-label">
-                    <span>Texte d'accroche</span>
-                    <span class="field-counter" data-for="texte_accueil">0</span>
-                </div>
-                <textarea name="texte_accueil" placeholder="Décrivez votre activité..."><?= v($contenu, 'texte_accueil') ?></textarea>
-            </div>
- 
-            <div class="field">
-                <div class="field-label"><span>Image hero (chemin)</span></div>
-                <input type="text" name="image_accueil" value="<?= v($contenu, 'image_accueil') ?>" placeholder="IMAGES/hero.jpg">
-                <?php if (!empty($contenu['image_accueil'])): ?>
-                    <div class="image-preview">
-                        <img src="<?= v($contenu, 'image_accueil') ?>" alt="">
-                        <div class="image-preview-info">
-                            <strong>Aperçu actuel</strong>
-                            <?= v($contenu, 'image_accueil') ?>
+                <?php foreach ($section['fields'] as $field): ?>
+                    <div class="field">
+                        <div class="field-label">
+                            <span><?= h($field['label']) ?></span>
+                            <span class="field-counter" data-for="<?= h($field['name']) ?>">0</span>
                         </div>
+                        <?php if (($field['type'] ?? 'text') === 'textarea'): ?>
+                            <textarea name="<?= h($field['name']) ?>" placeholder="<?= h($field['placeholder'] ?? '') ?>"><?= v($contenu, $field['name']) ?></textarea>
+                        <?php else: ?>
+                            <input type="text" name="<?= h($field['name']) ?>" value="<?= v($contenu, $field['name']) ?>" placeholder="<?= h($field['placeholder'] ?? '') ?>">
+                        <?php endif; ?>
+ 
+                        <?php if (!empty($field['is_image']) && !empty($contenu[$field['name']])): ?>
+                            <div class="image-preview">
+                                <img src="<?= v($contenu, $field['name']) ?>" alt="">
+                                <div class="image-preview-info">
+                                    <strong>Aperçu actuel</strong>
+                                    <?= v($contenu, $field['name']) ?>
+                                </div>
+                            </div>
+                        <?php endif; ?>
                     </div>
-                <?php endif; ?>
-            </div>
-        </section>
- 
-        <!-- Section À Propos -->
-        <section class="section">
-            <div class="section-header">
-                <span class="section-number">— II</span>
-                <h2 class="section-title">À propos</h2>
-                <span class="section-desc">Présentation de l'entreprise</span>
-            </div>
- 
-            <div class="field">
-                <div class="field-label">
-                    <span>Titre</span>
-                    <span class="field-counter" data-for="titre_apropos">0</span>
-                </div>
-                <input type="text" name="titre_apropos" value="<?= v($contenu, 'titre_apropos') ?>" placeholder="Notre histoire">
-            </div>
- 
-            <div class="field">
-                <div class="field-label">
-                    <span>Paragraphe 1</span>
-                    <span class="field-counter" data-for="p1_apropos">0</span>
-                </div>
-                <textarea name="p1_apropos" placeholder="Premier paragraphe..."><?= v($contenu, 'p1_apropos') ?></textarea>
-            </div>
- 
-            <div class="field">
-                <div class="field-label">
-                    <span>Paragraphe 2</span>
-                    <span class="field-counter" data-for="p2_apropos">0</span>
-                </div>
-                <textarea name="p2_apropos" placeholder="Second paragraphe..."><?= v($contenu, 'p2_apropos') ?></textarea>
-            </div>
- 
-            <div class="field">
-                <div class="field-label"><span>Texte du bouton</span></div>
-                <input type="text" name="bouton_apropos" value="<?= v($contenu, 'bouton_apropos') ?>" placeholder="En savoir plus">
-            </div>
- 
-            <div class="field">
-                <div class="field-label"><span>Image (chemin)</span></div>
-                <input type="text" name="image_apropos" value="<?= v($contenu, 'image_apropos') ?>" placeholder="IMAGES/apropos.jpg">
-                <?php if (!empty($contenu['image_apropos'])): ?>
-                    <div class="image-preview">
-                        <img src="<?= v($contenu, 'image_apropos') ?>" alt="">
-                        <div class="image-preview-info">
-                            <strong>Aperçu actuel</strong>
-                            <?= v($contenu, 'image_apropos') ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </section>
- 
-        <!-- Section Carrousel -->
-        <section class="section">
-            <div class="section-header">
-                <span class="section-number">— III</span>
-                <h2 class="section-title">Carrousel</h2>
-                <span class="section-desc">Galerie d'images défilantes</span>
-            </div>
- 
-            <div class="field">
-                <div class="field-label"><span>Image carrousel (chemin)</span></div>
-                <input type="text" name="carousel_item" value="<?= v($contenu, 'carousel_item') ?>" placeholder="IMAGES/carousel1.jpg">
-                <?php if (!empty($contenu['carousel_item'])): ?>
-                    <div class="image-preview">
-                        <img src="<?= v($contenu, 'carousel_item') ?>" alt="">
-                        <div class="image-preview-info">
-                            <strong>Aperçu actuel</strong>
-                            <?= v($contenu, 'carousel_item') ?>
-                        </div>
-                    </div>
-                <?php endif; ?>
-            </div>
-        </section>
+                <?php endforeach; ?>
+            </section>
+        <?php endforeach; ?>
  
         <div class="form-actions">
             <span class="form-hint">Les modifications sont appliquées immédiatement</span>
@@ -578,7 +527,6 @@ function v($contenu, $key) {
                 <span class="arrow">→</span>
             </button>
         </div>
- 
     </form>
 </div>
  
@@ -594,4 +542,3 @@ function v($contenu, $key) {
  
 </body>
 </html>
- 

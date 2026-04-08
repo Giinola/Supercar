@@ -3,159 +3,334 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bienvenue chez SuperCar</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <title>SuperCar — L'élite automobile</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
-      font-family: 'Poppins', sans-serif;
+    }
+ 
+    :root {
+      --bg: #0a0a0a;
+      --bg-soft: #111111;
+      --text: #f5f5f5;
+      --text-muted: #8a8a8a;
+      --accent: #c9a875;
+      --line: rgba(255, 255, 255, 0.08);
+    }
+ 
+    html, body {
+      height: 100%;
     }
  
     body {
-      height: 100vh;
-      background: radial-gradient(circle at 20% 20%, #001220, #000);
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-weight: 300;
+      letter-spacing: 0.3px;
       overflow: hidden;
       position: relative;
-      color: #fff;
     }
  
-    /* --- Effet de particules lumineuses --- */
-    .particles {
+    /* Subtle background gradient */
+    body::before {
+      content: '';
       position: absolute;
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at top, rgba(201, 168, 117, 0.04), transparent 60%),
+        radial-gradient(ellipse at bottom, rgba(255, 255, 255, 0.02), transparent 50%);
+      pointer-events: none;
       z-index: 0;
     }
  
-    .particles span {
+    /* Subtle grain texture */
+    body::after {
+      content: '';
       position: absolute;
-      display: block;
-      width: 10px;
-      height: 10px;
-      background: rgba(0, 191, 255, 0.4);
-      border-radius: 50%;
-      animation: move 15s linear infinite;
-      bottom: -150px;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/%3E%3C/svg%3E");
+      opacity: 0.04;
+      pointer-events: none;
+      z-index: 0;
     }
  
-    @keyframes move {
-      0% { transform: translateY(0) scale(1); opacity: 1; }
-      100% { transform: translateY(-1200px) scale(0); opacity: 0; }
+    /* Top bar */
+    .topbar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 32px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2;
     }
  
-    .container {
+    .brand-mark {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: 4px;
+      color: var(--text);
+    }
+ 
+    .brand-mark span {
+      color: var(--accent);
+    }
+ 
+    .top-meta {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+ 
+    /* Main */
+    main {
       position: relative;
       z-index: 1;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
       text-align: center;
-      max-width: 800px;
-      padding: 40px;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      background: rgba(15, 20, 30, 0.5);
-      box-shadow: 0 0 60px rgba(0, 191, 255, 0.2);
-      animation: fadeIn 1.5s ease-in-out;
+      padding: 0 40px;
+    }
+ 
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 32px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      animation: fadeUp 1s ease-out 0.1s both;
+    }
+ 
+    .eyebrow::before,
+    .eyebrow::after {
+      content: '';
+      width: 40px;
+      height: 1px;
+      background: var(--accent);
+      opacity: 0.5;
     }
  
     h1 {
-      font-size: 48px;
-      font-weight: 700;
-      color: #00bfff;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 400;
+      line-height: 1;
       letter-spacing: 1px;
-      margin-bottom: 15px;
+      margin-bottom: 28px;
+      animation: fadeUp 1s ease-out 0.3s both;
     }
  
-    h1 span {
-      color: #fff;
+    h1 .accent {
+      font-style: italic;
+      color: var(--accent);
+      font-weight: 500;
     }
  
-    p {
-      font-size: 18px;
-      color: #ccc;
-      margin-bottom: 40px;
+    .tagline {
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--text-muted);
+      max-width: 520px;
+      line-height: 1.7;
+      margin-bottom: 56px;
+      animation: fadeUp 1s ease-out 0.5s both;
     }
  
-    .buttons {
+    .actions {
       display: flex;
-      justify-content: center;
-      gap: 20px;
+      gap: 24px;
       flex-wrap: wrap;
+      justify-content: center;
+      animation: fadeUp 1s ease-out 0.7s both;
     }
  
     .btn {
-      padding: 14px 30px;
-      border: none;
-      border-radius: 10px;
-      font-size: 16px;
-      font-weight: 600;
+      position: relative;
+      padding: 16px 42px;
+      font-family: 'Inter', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 3px;
       text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      letter-spacing: 1px;
       text-decoration: none;
+      cursor: pointer;
+      transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      overflow: hidden;
     }
  
-    .btn-client {
-      background: linear-gradient(90deg, #00bfff, #0080ff);
-      color: white;
+    .btn-primary {
+      background: var(--text);
+      color: var(--bg);
+      border: 1px solid var(--text);
     }
  
-    .btn-client:hover {
-      background: linear-gradient(90deg, #0095cc, #0066cc);
+    .btn-primary:hover {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--bg);
       transform: translateY(-2px);
     }
  
-    .btn-admin {
+    .btn-secondary {
       background: transparent;
-      border: 2px solid #00bfff;
-      color: #00bfff;
+      color: var(--text);
+      border: 1px solid rgba(255, 255, 255, 0.25);
     }
  
-    .btn-admin:hover {
-      background: #00bfff;
-      color: white;
+    .btn-secondary:hover {
+      border-color: var(--accent);
+      color: var(--accent);
       transform: translateY(-2px);
     }
  
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(40px); }
-      to { opacity: 1; transform: translateY(0); }
+    .btn .arrow {
+      transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
  
-    footer {
+    .btn:hover .arrow {
+      transform: translateX(5px);
+    }
+ 
+    /* Footer */
+    .bottombar {
       position: absolute;
-      bottom: 20px;
-      width: 100%;
-      text-align: center;
-      color: #777;
-      font-size: 14px;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 28px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      z-index: 2;
+    }
+ 
+    .bottombar .line {
+      flex: 1;
+      height: 1px;
+      background: var(--line);
+      margin: 0 32px;
+    }
+ 
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+ 
+    /* Responsive */
+    @media (max-width: 768px) {
+      .topbar,
+      .bottombar {
+        padding: 24px 28px;
+      }
+ 
+      .top-meta {
+        display: none;
+      }
+ 
+      .bottombar .line {
+        display: none;
+      }
+ 
+      .bottombar {
+        justify-content: center;
+        text-align: center;
+      }
+ 
+      .actions {
+        flex-direction: column;
+        width: 100%;
+        max-width: 280px;
+        gap: 16px;
+      }
+ 
+      .btn {
+        justify-content: center;
+        padding: 18px 32px;
+      }
+ 
+      .eyebrow::before,
+      .eyebrow::after {
+        width: 24px;
+      }
+    }
+ 
+    @media (max-height: 600px) {
+      .tagline {
+        margin-bottom: 32px;
+      }
+      .eyebrow {
+        margin-bottom: 20px;
+      }
+      h1 {
+        margin-bottom: 18px;
+      }
     }
   </style>
 </head>
 <body>
  
+  <header class="topbar">
+    <div class="brand-mark">SUPER<span>CAR</span></div>
+    <div class="top-meta">Île Maurice — Est. 2025</div>
+  </header>
  
+  <main>
+    <div class="eyebrow">L'élite automobile</div>
  
-  <div class="container">
-    <h1>BIENVENUE CHEZ <span>SUPERCAR</span></h1>
-    <p>Découvrez la vitesse, le luxe et la perfection automobile.<br>
-    Choisissez votre espace pour continuer votre expérience.</p>
+    <h1>
+      L'art de la <span class="accent">performance</span>
+    </h1>
  
-    <div class="buttons">
-      <a href="client/index.php" class="btn btn-client">Espace Client</a>
-      <a href="admin/login.php" class="btn btn-admin">Espace Admin</a>
+    <p class="tagline">
+      Une collection rare de voitures d'exception, sélectionnées avec exigence
+      pour celles et ceux qui ne se contentent jamais de l'ordinaire.
+    </p>
+ 
+    <div class="actions">
+      <a href="client/index.php" class="btn btn-primary">
+        Espace Client
+        <span class="arrow">→</span>
+      </a>
+      <a href="admin/login.php" class="btn btn-secondary">
+        Espace Admin
+        <span class="arrow">→</span>
+      </a>
     </div>
-  </div>
+  </main>
  
-  <footer>© 2025 SuperCar — L’élite de la performance automobile</footer>
+  <footer class="bottombar">
+    <span>© 2025 SuperCar</span>
+    <div class="line"></div>
+    <span>Luxury · Performance · Heritage</span>
+  </footer>
  
 </body>
 </html>
- 
  

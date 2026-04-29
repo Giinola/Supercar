@@ -1,27 +1,10 @@
 <?php
-$host = "mysql-ginola.alwaysdata.net";  
-$login = "ginola";                  
-$pass = "AlwaysGinola1";            
-$dbname = "ginola_supercar";        
- 
- 
-$bdd = new mysqli($host, $login, $pass, $dbname);
- 
- 
-if ($bdd->connect_error) {
-    die("Connexion échouée: " . $bdd->connect_error);  
-}
- 
+require_once "db.php";
 
 $contenu = [];
-$resultats = mysqli_query($bdd, "SELECT * FROM Mercedes"); 
-
-
-if ($resultats) {
-    while ($ligne = mysqli_fetch_assoc($resultats)) {
-
-        $contenu[$ligne['id']] = $ligne;
-    }
+$stmt = $pdo->query("SELECT * FROM Mercedes");
+while ($ligne = $stmt->fetch()) {
+    $contenu[$ligne['id']] = $ligne;
 }
 ?>
 <!DOCTYPE html>
@@ -430,6 +413,16 @@ footer {
     color: #06b6d4;
 }
 
+@media (max-width: 1024px) {
+    .car-card {
+        width: 45%;
+    }
+
+    .marque-info h1 {
+        font-size: 2em;
+    }
+}
+
 @media (max-width: 768px) {
     .footer-content {
         flex-direction: column;
@@ -479,8 +472,8 @@ function toggleInfo(button) {
 </p>
 <div class="marque-info">
 
-        <h1>MERCEDES</h1>
-        <p>Mercedes-Benz est un constructeur automobile allemand de prestige fondé en 1926. La marque est reconnue mondialement pour son excellence en ingénierie, son luxe raffiné et ses innovations technologiques. Elle propose une gamme complète allant des berlines premium aux SUV, en passant par les sportives AMG haute performance.</p>
+        <h1>Mercedes</h1>
+        <p>Mercedes-Benz est l'incarnation du luxe automobile allemand. Pionnière de l'industrie, elle allie tradition centenaire et innovation technologique pour offrir des véhicules alliant confort suprême, performances et sécurité à la pointe.</p>
     
 </div>
             <div class="car-models">
@@ -570,6 +563,3 @@ foreach ($contenu as $voiture) {
 
 </body>
 </html>
-   
-   
-   

@@ -1,21 +1,5 @@
 <?php
-// =====================================================
-//  page_content_admin.php — Helper réutilisable
-//  Pour les pages d'administration de type clé/valeur
-//  (admin_voitures, Admin_contact, admin_essai, ...)
-//
-//  Variables attendues avant inclusion :
-//    $page_table          : nom de la table SQL
-//    $page_titre          : titre principal
-//    $page_eyebrow        : surtitre
-//    $page_subtitle       : description sous le titre
-//    $page_sections       : tableau des sections avec leurs champs
-//
-//  Variable optionnelle :
-//    $page_set_admin_user : true pour exécuter SET @admin_user
-//                          (utile si un trigger MySQL enregistre
-//                           qui a fait la modification)
-// =====================================================
+
  
 session_start();
  
@@ -85,10 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
- 
-// =====================================================
-//  Récupération des contenus
-// =====================================================
+
 try {
     $resultats = $pdo->query("SELECT nom_champ, valeur FROM `$page_table`");
     foreach ($resultats as $ligne) {
@@ -479,6 +460,8 @@ function h($value) {
         <h1>Page <span class="accent"><?= h($page_titre) ?></span></h1>
         <p class="page-subtitle"><?= h($page_subtitle) ?></p>
     </header>
+
+    <?php if (!empty($page_header_extra)) echo $page_header_extra; ?>
  
     <form method="POST" action="">
         <input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token']) ?>">

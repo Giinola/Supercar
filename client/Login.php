@@ -6,30 +6,29 @@ if (isset($_SESSION['user_id'])) {
     exit();
 }
 
-$host = "mysql-ginola.alwaysdata.net";  
-$login = "ginola";                  
-$pass = "AlwaysGinola1";            
-$dbname = "ginola_supercar";        
- 
-$bdd = new mysqli($host, $login, $pass, $dbname);
- 
-if ($bdd->connect_error) {
-    die("Connexion échouée: " . $bdd->connect_error);  
-}
+require_once "db.php";
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $email = mysqli_real_escape_string($bdd, $_POST['email']);
-    $mot_de_passe = mysqli_real_escape_string($bdd, $_POST['mot_de_passe']);
+    $email = trim($_POST['email'] ?? '');
+    $mot_de_passe = $_POST['mot_de_passe'] ?? '';
 
-    $sql = "SELECT * FROM utilisateur WHERE email = '$email' AND mot_de_passe = '$mot_de_passe'";
-    $result = $bdd->query($sql);
-    if ($result->num_rows > 0) {
-        $user = $result->fetch_assoc();
-        $_SESSION['user_id'] = $user['id'];
-        header("Location: Dashboard.php");
-        exit(); 
-    } else {
-        $error_message = "Identifiants incorrects";
+    try {
+        $stmt = $pdo->prepare("SELECT * FROM utilisateur WHERE email = :email AND mot_de_passe = :mdp");
+        $stmt->execute([
+            ':email' => $email,
+            ':mdp'   => $mot_de_passe,
+        ]);
+        $user = $stmt->fetch();
+
+        if ($user) {
+            $_SESSION['user_id'] = $user['id'];
+            header("Location: Dashboard.php");
+            exit(); 
+        } else {
+            $error_message = "Identifiants incorrects";
+        }
+    } catch (PDOException $e) {
+        $error_message = "Erreur de connexion.";
     }
 }
 ?>
@@ -102,17 +101,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Barre décorative en haut */
         .container::before {
             content: '';
             position: absolute;
@@ -124,7 +116,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             border-radius: 20px 20px 0 0;
         }
 
-        /* Icône de connexion */
         .login-icon {
             width: 80px;
             height: 80px;
@@ -138,14 +129,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             box-shadow: 0 8px 25px rgba(6, 182, 212, 0.4);
         }
 
-        /* Titre */
-        h2 {
+        .container h1 {
             font-size: 32px;
             font-weight: 800;
             margin-bottom: 10px;
             color: #ffffff;
             text-align: center;
-            letter-spacing: 0.5px;
         }
 
         .subtitle {
@@ -155,88 +144,77 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin-bottom: 30px;
         }
 
-        /* Message d'erreur */
         .error-message {
             background: rgba(239, 68, 68, 0.15);
-            padding: 15px;
+            padding: 12px 18px;
             border-radius: 12px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-weight: 600;
             color: #ef4444;
             border-left: 4px solid #ef4444;
-            text-align: left;
-            animation: shake 0.5s ease-in-out;
+            font-size: 14px;
         }
 
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px); }
-            75% { transform: translateX(10px); }
+        .input-box {
+            position: relative;
+            width: 100%;
+            margin-bottom: 20px;
         }
 
-        /* Formulaire */
-        form {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        /* Labels */
-        label {
+        .input-box label {
             font-size: 13px;
             font-weight: 600;
             color: #cbd5e1;
-            margin-bottom: -12px;
+            margin-bottom: 8px;
+            display: block;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
 
-        /* Champs du formulaire */
-        input {
+        .input-box input {
             width: 100%;
-            padding: 14px 18px;
-            border-radius: 12px;
-            border: 2px solid #334155;
+            height: 50px;
             background: rgba(15, 23, 42, 0.6);
-            font-size: 15px;
-            font-weight: 500;
-            color: #e2e8f0;
+            border: 2px solid #334155;
             outline: none;
+            border-radius: 12px;
+            font-size: 15px;
+            color: #e2e8f0;
+            padding: 0 18px;
             transition: all 0.3s ease;
             font-family: 'Poppins', sans-serif;
+            font-weight: 500;
         }
 
-        input::placeholder {
-            color: #64748b;
-        }
+        .input-box input::placeholder { color: #64748b; }
 
-        input:focus {
+        .input-box input:focus {
             border-color: #06b6d4;
             background: rgba(15, 23, 42, 0.8);
             box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
         }
 
-        /* Bouton */
-        button {
-            background: linear-gradient(135deg, #f97316, #ea580c);
-            color: white;
-            padding: 16px;
+        .btn {
             width: 100%;
+            height: 50px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
             border: none;
+            outline: none;
             border-radius: 50px;
+            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4);
             cursor: pointer;
             font-size: 16px;
+            color: white;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 1px;
             transition: all 0.3s ease;
-            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4);
             margin-top: 10px;
             position: relative;
             overflow: hidden;
         }
 
-        button::before {
+        .btn::before {
             content: '';
             position: absolute;
             top: 0;
@@ -247,37 +225,25 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             transition: left 0.5s ease;
         }
 
-        button:hover::before {
-            left: 100%;
-        }
+        .btn:hover::before { left: 100%; }
+        .btn:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(249, 115, 22, 0.6); }
+        .btn:active { transform: translateY(-1px); }
 
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 35px rgba(249, 115, 22, 0.6);
-        }
-
-        button:active {
-            transform: translateY(-1px);
-        }
-
-        /* Lien inscription */
-        .signup-link {
-            text-align: center;
-            margin-top: 20px;
+        .register-link {
             font-size: 14px;
+            text-align: center;
+            margin-top: 25px;
             color: #94a3b8;
         }
 
-        .signup-link a {
+        .register-link a {
             color: #06b6d4;
             text-decoration: none;
             font-weight: 600;
             transition: color 0.3s ease;
         }
 
-        .signup-link a:hover {
-            color: #3b82f6;
-        }
+        .register-link a:hover { color: #3b82f6; }
 
         /* Footer */
         footer {
@@ -300,120 +266,36 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin: 0 auto;
         }
 
-        .footer-section {
-            flex: 1 1 200px;
+        .footer-section { flex: 1 1 200px; }
+        .footer-section h3 { color: #e2e8f0; margin-bottom: 15px; font-size: 18px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .footer-section ul { list-style: none; padding: 0; margin: 0; }
+        .footer-section li { margin-bottom: 10px; font-size: 15px; color: #94a3b8; transition: color 0.3s ease; }
+        .footer-section li:hover { color: #06b6d4; }
+
+        .socials { display: flex; gap: 10px; margin-top: 10px; }
+        .socials a { width: 45px; height: 45px; background: #1e293b; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; border: 1px solid #334155; }
+        .socials a:hover { background: #06b6d4; border-color: #06b6d4; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4); }
+        .socials a img { width: 22px; filter: brightness(0) invert(0.7); transition: transform 0.3s ease, filter 0.3s ease; }
+        .socials a:hover img { filter: brightness(0) invert(1); }
+
+        .footer-bottom { border-top: 1px solid #334155; margin-top: 30px; padding-top: 20px; text-align: center; }
+        .footer-bottom p { color: #64748b; font-size: 14px; margin-bottom: 10px; }
+        .footer-links { margin-top: 10px; }
+        .footer-links a { margin: 0 15px; color: #94a3b8; text-decoration: none; transition: color 0.3s; font-size: 14px; }
+        .footer-links a:hover { color: #06b6d4; }
+
+        @media (max-width: 1024px) {
+            .container { max-width: 420px; }
         }
 
-        .footer-section h3 {
-            color: #e2e8f0;
-            margin-bottom: 15px;
-            font-size: 18px;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .footer-section ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .footer-section li {
-            margin-bottom: 10px;
-            font-size: 15px;
-            color: #94a3b8;
-            transition: color 0.3s ease;
-        }
-
-        .footer-section li:hover {
-            color: #06b6d4;
-        }
-
-        .socials {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-            justify-content: center;
-        }
-
-        .socials a {
-            width: 45px;
-            height: 45px;
-            background: #1e293b;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            border: 1px solid #334155;
-        }
-
-        .socials a:hover {
-            background: #06b6d4;
-            border-color: #06b6d4;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
-        }
-
-        .socials a img {
-            width: 22px;
-            filter: brightness(0) invert(0.7);
-            transition: filter 0.3s ease;
-        }
-
-        .socials a:hover img {
-            filter: brightness(0) invert(1);
-        }
-
-        .footer-bottom {
-            border-top: 1px solid #334155;
-            margin-top: 30px;
-            padding-top: 20px;
-            text-align: center;
-        }
-
-        .footer-bottom p {
-            color: #64748b;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        .footer-links {
-            margin-top: 10px;
-        }
-
-        .footer-links a {
-            margin: 0 15px;
-            color: #94a3b8;
-            text-decoration: none;
-            transition: color 0.3s;
-            font-size: 14px;
-        }
-
-        .footer-links a:hover {
-            color: #06b6d4;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .container {
-                padding: 30px 25px;
-            }
+            .footer-content { flex-direction: column; align-items: center; text-align: center; }
+            .footer-section { flex: none; }
+        }
 
-            h2 {
-                font-size: 26px;
-            }
-
-            .footer-content {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-
-            .footer-section {
-                flex: none;
-            }
+        @media (max-width: 600px) {
+            .container { padding: 30px 25px; }
+            .container h1 { font-size: 26px; }
         }
     </style>
 </head>
@@ -424,26 +306,30 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     <div class="login-wrapper">
         <div class="container">
-            <div class="login-icon">🔐</div>
-            <h2>Connexion</h2>
-            <p class="subtitle">Accédez à votre espace personnel</p>
+            <div class="login-icon"></div>
+            <h1>Connexion</h1>
+            <p class="subtitle">Accédez à votre espace SUPERCARS</p>
 
-            <?php if (isset($error_message)): ?>    
-                <p class="error-message">❌ <?php echo $error_message; ?></p>
+            <?php if (isset($error_message)): ?>
+                <div class="error-message"><?php echo htmlspecialchars($error_message); ?></div>
             <?php endif; ?>
 
             <form action="Login.php" method="POST">
-                <label for="email">Email</label>
-                <input type="email" name="email" placeholder="votre@email.com" required>
+                <div class="input-box">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="votre@email.com" required>
+                </div>
 
-                <label for="mot_de_passe">Mot de passe</label>
-                <input type="password" name="mot_de_passe" placeholder="••••••••" required>
+                <div class="input-box">
+                    <label>Mot de passe</label>
+                    <input type="password" name="mot_de_passe" placeholder="Votre mot de passe" required>
+                </div>
 
-                <button type="submit">Se connecter</button>
+                <button type="submit" class="btn">Se connecter</button>
             </form>
 
-            <div class="signup-link">
-                Pas encore de compte ? <a href="inscription.php">S'inscrire</a>
+            <div class="register-link">
+                <p>Pas encore de compte ? <a href="inscription.php">S'inscrire</a></p>
             </div>
         </div>
     </div>

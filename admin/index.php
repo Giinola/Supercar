@@ -21,7 +21,7 @@ function safe_count($pdo, $table) {
  
 $total_users    = safe_count($pdo, 'utilisateur');
 $total_essais   = safe_count($pdo, 'essai');
-$total_messages = safe_count($pdo, 'contact');
+$total_messages = safe_count($pdo, 'contacts');
 $total_ferrari  = safe_count($pdo, 'ferrari');
 $total_mclaren  = safe_count($pdo, 'mclaren');
 $total_merco    = safe_count($pdo, 'mercedes');

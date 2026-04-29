@@ -1,21 +1,10 @@
 <?php
-$host = "mysql-ginola.alwaysdata.net";  
-$login = "ginola";                  
-$pass = "AlwaysGinola1";            
-$dbname = "ginola_supercar";        
- 
-$bdd = new mysqli($host, $login, $pass, $dbname);
- 
-if ($bdd->connect_error) {
-    die("Connexion échouée: " . $bdd->connect_error);  
-}
- 
-$bdd->set_charset("utf8");
+require_once "db.php";
 
 $contenu = [];
-$resultats = mysqli_query($bdd, "SELECT * FROM voitures");
-while ($ligne = mysqli_fetch_assoc($resultats)) {
-    $contenu[$ligne['nom_champ']] = $ligne['valeur'];
+$stmt = $pdo->query("SELECT nom_champ, valeur FROM voitures");
+foreach ($stmt->fetchAll() as $row) {
+    $contenu[$row['nom_champ']] = $row['valeur'];
 }
 ?>
 <!DOCTYPE html>
@@ -339,6 +328,22 @@ footer {
     }
 }
 
+@media (max-width: 1024px) {
+    .catalog {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 60px 30px;
+        gap: 25px;
+    }
+
+    .modèle h1 {
+        font-size: 48px;
+    }
+
+    .modèle p {
+        font-size: 17px;
+    }
+}
+
 @media (max-width: 768px) {
     .modèle {
         padding: 60px 20px 40px;
@@ -384,52 +389,52 @@ footer {
     </header>
 
     <section class="modèle">
-        <h1><?php echo $contenu['titre_page']; ?></h1>
-        <p><?php echo $contenu['description_page']; ?></p>
+        <h1><?php echo htmlspecialchars($contenu['titre_page'] ?? 'Nos Modèles'); ?></h1>
+        <p><?php echo htmlspecialchars($contenu['description_page'] ?? 'Découvrez notre sélection de véhicules'); ?></p>
     </section>
 
     <div class="catalog">
         <div class="car">
             <div class="car-image-wrapper">
-                <img src="<?php echo $contenu['Range Rover_image']; ?>" alt="Range Rover">
+                <img src="<?php echo htmlspecialchars($contenu['range_rover_image'] ?? ''); ?>" alt="Range Rover">
                 <div class="car-overlay"></div>
             </div>
             <div class="car-content">
-                <h3><?php echo $contenu['Range Rover_nom']; ?></h3>
-                <a href="<?php echo $contenu['Range Rover_lien']; ?>" class="button">Voir détails</a>
+                <h3><?php echo htmlspecialchars($contenu['range_rover_nom'] ?? 'Range Rover'); ?></h3>
+                <a href="<?php echo htmlspecialchars($contenu['range_rover_lien'] ?? 'RR.php'); ?>" class="button">Voir détails</a>
             </div>
         </div>
 
         <div class="car">
             <div class="car-image-wrapper">
-                <img src="<?php echo $contenu['ferrari_image']; ?>" alt="Ferrari">
+                <img src="<?php echo htmlspecialchars($contenu['ferrari_image'] ?? ''); ?>" alt="Ferrari">
                 <div class="car-overlay"></div>
             </div>
             <div class="car-content">
-                <h3><?php echo $contenu['ferrari_nom']; ?></h3>
-                <a href="<?php echo $contenu['ferrari_lien']; ?>" class="button">Voir détails</a>
+                <h3><?php echo htmlspecialchars($contenu['ferrari_nom'] ?? 'Ferrari'); ?></h3>
+                <a href="<?php echo htmlspecialchars($contenu['ferrari_lien'] ?? 'Ferrari.php'); ?>" class="button">Voir détails</a>
             </div>
         </div>
 
         <div class="car">
             <div class="car-image-wrapper">
-                <img src="<?php echo $contenu['mercedes_image']; ?>" alt="Mercedes">
+                <img src="<?php echo htmlspecialchars($contenu['mercedes_image'] ?? ''); ?>" alt="Mercedes">
                 <div class="car-overlay"></div>
             </div>
             <div class="car-content">
-                <h3><?php echo $contenu['mercedes_nom']; ?></h3>
-                <a href="<?php echo $contenu['mercedes_lien']; ?>" class="button">Voir détails</a>
+                <h3><?php echo htmlspecialchars($contenu['mercedes_nom'] ?? 'Mercedes'); ?></h3>
+                <a href="<?php echo htmlspecialchars($contenu['mercedes_lien'] ?? 'Mercedes.php'); ?>" class="button">Voir détails</a>
             </div>
         </div>
 
         <div class="car">
             <div class="car-image-wrapper">
-                <img src="<?php echo $contenu['mclaren_image']; ?>" alt="McLaren">
+                <img src="<?php echo htmlspecialchars($contenu['mclaren_image'] ?? ''); ?>" alt="McLaren">
                 <div class="car-overlay"></div>
             </div>
             <div class="car-content">
-                <h3><?php echo $contenu['mclaren_nom']; ?></h3>
-                <a href="<?php echo $contenu['mclaren_lien']; ?>" class="button">Voir détails</a>
+                <h3><?php echo htmlspecialchars($contenu['mclaren_nom'] ?? 'McLaren'); ?></h3>
+                <a href="<?php echo htmlspecialchars($contenu['mclaren_lien'] ?? 'McLaren.php'); ?>" class="button">Voir détails</a>
             </div>
         </div>
     </div>

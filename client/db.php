@@ -1,20 +1,23 @@
 <?php
-$host = "mysql-ginola.alwaysdata.net";  
-$login = "ginola";                  
-$pass = "AlwaysGinola1";            
-$dbname = "ginola_supercar";        
- 
- 
-$bdd = new mysqli($host, $login, $pass, $dbname);
- 
- 
-if ($bdd->connect_error) {
-    die("Connexion échouée: " . $bdd->connect_error);  
+
+$host    = "mysql-ginola.alwaysdata.net";
+$dbname  = "ginola_supercar";
+$login   = "ginola";
+$pass    = "AlwaysGinola1";
+$charset = "utf8mb4";
+
+
+$dsn = "mysql:host=$host;dbname=$dbname;charset=$charset";
+
+
+$options = [
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,  
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,        
+    PDO::ATTR_EMULATE_PREPARES   => false,                   
+];
+
+try {
+    $pdo = new PDO($dsn, $login, $pass, $options);
+} catch (PDOException $e) {
+    die("Erreur de connexion à la base de données.");
 }
- 
- 
-$bdd->set_charset("utf8");
- 
-?>
- 
- 

@@ -1,27 +1,10 @@
 <?php
-$host = "mysql-ginola.alwaysdata.net";  
-$login = "ginola";                  
-$pass = "AlwaysGinola1";            
-$dbname = "ginola_supercar";        
- 
- 
-$bdd = new mysqli($host, $login, $pass, $dbname);
- 
- 
-if ($bdd->connect_error) {
-    die("Connexion échouée: " . $bdd->connect_error);  
-}
- 
+require_once "db.php";
 
 $contenu = [];
-$resultats = mysqli_query($bdd, "SELECT * FROM ferrari ORDER BY id ASC"); 
-
-
-if ($resultats) {
-    while ($ligne = mysqli_fetch_assoc($resultats)) {
-
-        $contenu[$ligne['id']] = $ligne;
-    }
+$stmt = $pdo->query("SELECT * FROM ferrari ORDER BY id ASC");
+while ($ligne = $stmt->fetch()) {
+    $contenu[$ligne['id']] = $ligne;
 }
 ?>
 <!DOCTYPE html>
@@ -430,6 +413,16 @@ footer {
     color: #06b6d4;
 }
 
+@media (max-width: 1024px) {
+    .car-card {
+        width: 45%;
+    }
+
+    .marque-info h1 {
+        font-size: 2em;
+    }
+}
+
 @media (max-width: 768px) {
     .footer-content {
         flex-direction: column;
@@ -570,6 +563,3 @@ foreach ($contenu as $voiture) {
 
 </body>
 </html>
-   
-   
-   

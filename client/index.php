@@ -1,14 +1,5 @@
 <?php
-$host = "mysql-ginola.alwaysdata.net";  
-$login = "ginola";                  
-$pass = "AlwaysGinola1";            
-$dbname = "ginola_supercar";        
- 
-$bdd = new mysqli($host, $login, $pass, $dbname);
- 
-if ($bdd->connect_error) {
-    die("Connexion échouée: " . $bdd->connect_error);  
-}
+require_once "db.php";
 ?>
 <!DOCTYPE html>
 
@@ -582,55 +573,87 @@ if ($bdd->connect_error) {
             color: #06b6d4;
         }
 
-        /* Responsive */
+        /* ===== RESPONSIVE TABLETTE ===== */
         @media (max-width: 1024px) {
-            .hero-content {
+            .hero-content,
+            .about-content {
                 grid-template-columns: 1fr;
                 text-align: center;
             }
 
-            .hero-text h1 {
-                font-size: 52px;
+            .hero-text h1,
+            .about-text h2,
+            .section-header h2,
+            .cta-content h2 {
+                font-size: 42px;
             }
 
             .hero-buttons {
                 justify-content: center;
             }
 
-            .about-content {
-                grid-template-columns: 1fr;
+            .hero-car-wrapper {
+                height: 400px;
+            }
+
+            .hero-car-wrapper::before {
+                width: 340px;
+                height: 340px;
             }
 
             .stats-container {
                 grid-template-columns: repeat(2, 1fr);
             }
+
+            .featured-section,
+            .about-section,
+            .cta-section,
+            .hero {
+                padding: 80px 30px;
+            }
         }
 
+        /* ===== RESPONSIVE TÉLÉPHONE ===== */
         @media (max-width: 768px) {
-
-            .hero-text h1 {
-                font-size: 38px;
+            .hero-text h1,
+            .about-text h2,
+            .section-header h2,
+            .cta-content h2 {
+                font-size: 32px;
             }
 
-            .hero-text p {
+            .hero-text p,
+            .cta-content p {
                 font-size: 16px;
             }
 
             .hero-buttons {
                 flex-direction: column;
+                width: 100%;
             }
 
-            .section-header h2 {
-                font-size: 32px;
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                text-align: center;
             }
 
-            .cars-grid {
-                grid-template-columns: 1fr;
+            .hero-car-wrapper {
+                height: 300px;
+            }
+
+            .hero-car-wrapper::before {
+                width: 260px;
+                height: 260px;
             }
 
             .stats-container {
                 grid-template-columns: 1fr;
                 gap: 30px;
+            }
+
+            .cars-grid {
+                grid-template-columns: 1fr;
             }
 
             .about-features {
@@ -646,8 +669,40 @@ if ($bdd->connect_error) {
                 justify-content: center;
             }
 
-            .featured-section, .hero, .about-section, .cta-section {
+            .featured-section,
+            .about-section,
+            .cta-section,
+            .hero,
+            footer {
                 padding: 60px 20px;
+            }
+        }
+
+        /* ===== RESPONSIVE PETIT TÉLÉPHONE ===== */
+        @media (max-width: 480px) {
+            .hero-text h1,
+            .about-text h2,
+            .section-header h2,
+            .cta-content h2 {
+                font-size: 26px;
+            }
+
+            .hero-car-wrapper {
+                height: 240px;
+            }
+
+            .hero-car-wrapper::before {
+                width: 200px;
+                height: 200px;
+            }
+
+            .car-info {
+                padding: 20px;
+            }
+
+            .footer-links a {
+                display: block;
+                margin: 8px 0;
             }
         }
     </style>
@@ -708,32 +763,22 @@ if ($bdd->connect_error) {
         <div class="cars-grid">
             <?php
             // Requête pour McLaren 765LT
-            $query_mclaren = "SELECT nom_complet, classe, carrosserie, description_courte, chemin_image, puissance_ch, prix_estime FROM mclaren WHERE id = 1 LIMIT 1";
-            $result_mclaren = mysqli_query($bdd, $query_mclaren);
+            $stmt_mclaren = $pdo->query("SELECT nom_complet, classe, carrosserie, description_courte, chemin_image, puissance_ch, prix_estime FROM mclaren WHERE id = 1 LIMIT 1");
+            $car = $stmt_mclaren->fetch();
             
-            // Requête pour Ferrari Purosangue
-            $query_ferrari = "SELECT nom_complet, classe, carrosserie, description_courte, chemin_image, puissance_ch, prix_estime FROM ferrari WHERE id = 2 LIMIT 1";
-            $result_ferrari = mysqli_query($bdd, $query_ferrari);
-            
-            // Requête pour Range Rover Evoque
-            $query_rangerover = "SELECT nom_complet, classe, carrosserie, description_courte, chemin_image, puissance_ch, prix_estime FROM range_rover WHERE id = 3 LIMIT 1";
-            $result_rangerover = mysqli_query($bdd, $query_rangerover);
-            
-            // Afficher McLaren 765LT
-            if ($result_mclaren && mysqli_num_rows($result_mclaren) > 0) {
-                $car = mysqli_fetch_assoc($result_mclaren);
+            if ($car) {
             ?>
             <div class="car-card">
                 <div class="car-image">
-                    <img src="<?php echo $car['chemin_image']; ?>" alt="<?php echo $car['nom_complet']; ?>">
+                    <img src="<?php echo htmlspecialchars($car['chemin_image']); ?>" alt="<?php echo htmlspecialchars($car['nom_complet']); ?>">
                     <div class="car-badge">Nouveau</div>
                 </div>
                 <div class="car-info">
-                    <h3><?php echo $car['nom_complet']; ?></h3>
+                    <h3><?php echo htmlspecialchars($car['nom_complet']); ?></h3>
                     <div class="car-specs">
-                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo $car['classe']; ?></span></div>
-                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo $car['carrosserie']; ?></span></div>
-                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo $car['puissance_ch']; ?> ch</span></div>
+                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo htmlspecialchars($car['classe']); ?></span></div>
+                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo htmlspecialchars($car['carrosserie']); ?></span></div>
+                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo htmlspecialchars($car['puissance_ch']); ?> ch</span></div>
                     </div>
                     <div class="car-price"><?php echo number_format($car['prix_estime'], 0, ',', ' '); ?> $</div>
                     <a href="Voitures.php" class="car-link">Voir les détails →</a>
@@ -742,21 +787,23 @@ if ($bdd->connect_error) {
             <?php } ?>
 
             <?php
-            // Afficher Ferrari Purosangue
-            if ($result_ferrari && mysqli_num_rows($result_ferrari) > 0) {
-                $car = mysqli_fetch_assoc($result_ferrari);
+            // Requête pour Ferrari Purosangue
+            $stmt_ferrari = $pdo->query("SELECT nom_complet, classe, carrosserie, description_courte, chemin_image, puissance_ch, prix_estime FROM ferrari WHERE id = 2 LIMIT 1");
+            $car = $stmt_ferrari->fetch();
+            
+            if ($car) {
             ?>
             <div class="car-card">
                 <div class="car-image">
-                    <img src="<?php echo $car['chemin_image']; ?>" alt="<?php echo $car['nom_complet']; ?>">
+                    <img src="<?php echo htmlspecialchars($car['chemin_image']); ?>" alt="<?php echo htmlspecialchars($car['nom_complet']); ?>">
                     <div class="car-badge">Exclusif</div>
                 </div>
                 <div class="car-info">
-                    <h3><?php echo $car['nom_complet']; ?></h3>
+                    <h3><?php echo htmlspecialchars($car['nom_complet']); ?></h3>
                     <div class="car-specs">
-                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo $car['classe']; ?></span></div>
-                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo $car['carrosserie']; ?></span></div>
-                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo $car['puissance_ch']; ?> ch</span></div>
+                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo htmlspecialchars($car['classe']); ?></span></div>
+                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo htmlspecialchars($car['carrosserie']); ?></span></div>
+                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo htmlspecialchars($car['puissance_ch']); ?> ch</span></div>
                     </div>
                     <div class="car-price"><?php echo number_format($car['prix_estime'], 0, ',', ' '); ?> $</div>
                     <a href="Voitures.php" class="car-link">Voir les détails →</a>
@@ -765,21 +812,23 @@ if ($bdd->connect_error) {
             <?php } ?>
 
             <?php
-            // Afficher Range Rover Evoque
-            if ($result_rangerover && mysqli_num_rows($result_rangerover) > 0) {
-                $car = mysqli_fetch_assoc($result_rangerover);
+            // Requête pour Range Rover Evoque
+            $stmt_rr = $pdo->query("SELECT nom_complet, classe, carrosserie, description_courte, chemin_image, puissance_ch, prix_estime FROM range_rover WHERE id = 3 LIMIT 1");
+            $car = $stmt_rr->fetch();
+            
+            if ($car) {
             ?>
             <div class="car-card">
                 <div class="car-image">
-                    <img src="<?php echo $car['chemin_image']; ?>" alt="<?php echo $car['nom_complet']; ?>">
+                    <img src="<?php echo htmlspecialchars($car['chemin_image']); ?>" alt="<?php echo htmlspecialchars($car['nom_complet']); ?>">
                     <div class="car-badge">Nouveau</div>
                 </div>
                 <div class="car-info">
-                    <h3><?php echo $car['nom_complet']; ?></h3>
+                    <h3><?php echo htmlspecialchars($car['nom_complet']); ?></h3>
                     <div class="car-specs">
-                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo $car['classe']; ?></span></div>
-                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo $car['carrosserie']; ?></span></div>
-                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo $car['puissance_ch']; ?> ch</span></div>
+                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo htmlspecialchars($car['classe']); ?></span></div>
+                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo htmlspecialchars($car['carrosserie']); ?></span></div>
+                        <div class="spec-item"><div class="spec-icon"></div><span><?php echo htmlspecialchars($car['puissance_ch']); ?> ch</span></div>
                     </div>
                     <div class="car-price"><?php echo number_format($car['prix_estime'], 0, ',', ' '); ?> $</div>
                     <a href="Voitures.php" class="car-link">Voir les détails →</a>

@@ -1,37 +1,29 @@
 <?php
-$host = "mysql-ginola.alwaysdata.net";  
-$login = "ginola";                  
-$pass = "AlwaysGinola1";            
-$dbname = "ginola_supercar";        
- 
- 
-$bdd = new mysqli($host, $login, $pass, $dbname);
- 
- 
-if ($bdd->connect_error) {
-    die("Connexion échouée: " . $bdd->connect_error);  
-}
- 
+require_once "db.php";
 
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    $nom             = $_POST["nom"];
-    $prenom          = $_POST["prenom"];
-    $email           = $_POST["email"];
-    $nom_utilisateur = $_POST["nom_utilisateur"];
-    $mot_de_passe    = $_POST["mot_de_passe"];
+    $nom             = trim($_POST["nom"] ?? '');
+    $prenom          = trim($_POST["prenom"] ?? '');
+    $email           = trim($_POST["email"] ?? '');
+    $nom_utilisateur = trim($_POST["nom_utilisateur"] ?? '');
+    $mot_de_passe    = $_POST["mot_de_passe"] ?? '';
 
-    $sql = "INSERT INTO utilisateur (nom, prenom, email, nom_utilisateur, mot_de_passe) 
-            VALUES ('$nom', '$prenom', '$email', '$nom_utilisateur', '$mot_de_passe')";
-
-    if ($bdd->query($sql) === TRUE) {
+    try {
+        $stmt = $pdo->prepare("INSERT INTO utilisateur (nom, prenom, email, nom_utilisateur, mot_de_passe) 
+                VALUES (:nom, :prenom, :email, :nom_utilisateur, :mot_de_passe)");
+        $stmt->execute([
+            ':nom'             => $nom,
+            ':prenom'          => $prenom,
+            ':email'           => $email,
+            ':nom_utilisateur' => $nom_utilisateur,
+            ':mot_de_passe'    => $mot_de_passe,
+        ]);
         header("Location:dash.inscri.php");
-    } else {
-        echo "Erreur : " . $bdd->error;
+        exit;
+    } catch (PDOException $e) {
+        echo "Erreur lors de l'inscription.";
     }
 }
-
-// Fermer la connexion
-$bdd->close();
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -320,7 +312,6 @@ $bdd->close();
             display: flex;
             gap: 10px;
             margin-top: 10px;
-            justify-content: center;
         }
 
         .socials a {
@@ -345,7 +336,7 @@ $bdd->close();
         .socials a img {
             width: 22px;
             filter: brightness(0) invert(0.7);
-            transition: filter 0.3s ease;
+            transition: transform 0.3s ease, filter 0.3s ease;
         }
 
         .socials a:hover img {
@@ -381,16 +372,13 @@ $bdd->close();
             color: #06b6d4;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
+        @media (max-width: 1024px) {
             .wrapper {
-                padding: 30px 25px;
+                max-width: 440px;
             }
+        }
 
-            .wrapper h1 {
-                font-size: 26px;
-            }
-
+        @media (max-width: 768px) {
             .footer-content {
                 flex-direction: column;
                 align-items: center;
@@ -401,22 +389,30 @@ $bdd->close();
                 flex: none;
             }
         }
-    </style>
 
+        @media (max-width: 600px) {
+            .wrapper {
+                padding: 30px 25px;
+            }
+
+            .wrapper h1 {
+                font-size: 26px;
+            }
+        }
+    </style>
 </head>
 <body>
-
     <header>
         <?php include "navbar.php"; ?>
     </header>
 
     <div class="signup-wrapper">
         <div class="wrapper">
-            <div class="signup-icon">✍️</div>
+            <div class="signup-icon">👤</div>
+            <h1>Inscription</h1>
+            <p class="subtitle">Créez votre compte SUPERCARS</p>
+
             <form action="inscription.php" method="POST">
-                <h1>Inscription</h1>
-                <p class="subtitle">Créez votre compte Supercars</p>
-                
                 <div class="input-box">
                     <label>Nom</label>
                     <input type="text" name="nom" placeholder="Votre nom" required>
@@ -434,20 +430,20 @@ $bdd->close();
 
                 <div class="input-box">
                     <label>Nom d'utilisateur</label>
-                    <input type="text" name="nom_utilisateur" placeholder="Choisissez un nom d'utilisateur" required>
+                    <input type="text" name="nom_utilisateur" placeholder="Choisissez un pseudo" required>
                 </div>
 
                 <div class="input-box">
                     <label>Mot de passe</label>
-                    <input type="password" name="mot_de_passe" placeholder="••••••••" required>
+                    <input type="password" name="mot_de_passe" placeholder="Votre mot de passe" required>
                 </div>
 
                 <button type="submit" class="btn">S'inscrire</button>
-
-                <div class="register-link">
-                    <p>Vous avez déjà un compte? <a href="Login.php">Se connecter</a></p>
-                </div>
             </form>
+
+            <div class="register-link">
+                <p>Déjà un compte ? <a href="Login.php">Se connecter</a></p>
+            </div>
         </div>
     </div>
 
@@ -487,6 +483,5 @@ $bdd->close();
             </div>
         </div>
     </footer>
-
 </body>
 </html>

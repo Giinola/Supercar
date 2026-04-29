@@ -1,50 +1,45 @@
 <?php
 session_start();
 if (!isset($_SESSION['user_id'])) {
-
     header('Location: Login.php');
     exit;
 }
 
+require_once "db.php";
 
-
-$host = "mysql-ginola.alwaysdata.net";
-$login = "ginola";
-$pass = "AlwaysGinola1";
-$dbname = "ginola_supercar";
-
-
-$bdd = new mysqli($host, $login, $pass, $dbname);
-
-
-if ($bdd->connect_error) {
-    die("Connexion échouée: " . $bdd->connect_error);
-}
-
+$message = '';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $nom = $_POST['nom'];
-    $prenom = $_POST['prenom'];
-    $email = $_POST['email'];
-    $voiture = $_POST['voiture'];
-    $date_essai = $_POST['date_essai'];
-    $Heure = $_POST['Heure'];
+    $nom = trim($_POST['nom'] ?? '');
+    $prenom = trim($_POST['prenom'] ?? '');
+    $email = trim($_POST['email'] ?? '');
+    $voiture = trim($_POST['voiture'] ?? '');
+    $date_essai = trim($_POST['date_essai'] ?? '');
+    $Heure = trim($_POST['Heure'] ?? '');
 
-    $sql = "INSERT INTO demandes_essai (nom, prenom, email, voiture, date_essai,Heure) 
-            VALUES ('$nom', '$prenom', '$email', '$voiture', '$date_essai', '$Heure')";
-
-    if ($bdd->query($sql) === TRUE) {
+    try {
+        $stmt = $pdo->prepare("INSERT INTO demandes_essai (nom, prenom, email, voiture, date_essai, Heure) 
+                VALUES (:nom, :prenom, :email, :voiture, :date_essai, :heure)");
+        $stmt->execute([
+            ':nom'        => $nom,
+            ':prenom'     => $prenom,
+            ':email'      => $email,
+            ':voiture'    => $voiture,
+            ':date_essai' => $date_essai,
+            ':heure'      => $Heure,
+        ]);
         $message = " Votre demande a été bien reçue. ";
-    } else {
-        $message = " Erreur : " . $bdd->error;
+    } catch (PDOException $e) {
+        $message = " Erreur lors de l'envoi de votre demande.";
     }
 }
 
 $contenu = [];
-$result = $bdd->query("SELECT * FROM essai");
-while ($row = $result->fetch_assoc()) {
+$stmt = $pdo->query("SELECT nom_champ, valeur FROM essai");
+foreach ($stmt->fetchAll() as $row) {
     $contenu[$row['nom_champ']] = $row['valeur'];
 }
+
 function genererOptions($donnees)
 {
     $options = explode("\n", $donnees);
@@ -52,7 +47,7 @@ function genererOptions($donnees)
     foreach ($options as $opt) {
         $opt = trim($opt);
         if (!empty($opt)) {
-            $html .= "<option value=\"$opt\">$opt</option>\n";
+            $html .= "<option value=\"" . htmlspecialchars($opt, ENT_QUOTES, 'UTF-8') . "\">" . htmlspecialchars($opt, ENT_QUOTES, 'UTF-8') . "</option>\n";
         }
     }
     return $html;
@@ -66,6 +61,7 @@ function genererOptions($donnees)
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Demande d'essai</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -82,8 +78,6 @@ function genererOptions($donnees)
             position: relative;
         }
 
-
-        /* Effets de fond */
         body::before {
             content: '';
             position: fixed;
@@ -97,7 +91,6 @@ function genererOptions($donnees)
             pointer-events: none;
         }
 
-        /* Container principal */
         .container {
             background: rgba(30, 41, 59, 0.95);
             backdrop-filter: blur(20px);
@@ -120,18 +113,10 @@ function genererOptions($donnees)
         }
 
         @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Barre décorative en haut */
         .container::before {
             content: '';
             position: absolute;
@@ -143,7 +128,6 @@ function genererOptions($donnees)
             border-radius: 25px 25px 0 0;
         }
 
-        /* Titre */
         h2 {
             font-size: 32px;
             font-weight: 800;
@@ -160,7 +144,6 @@ function genererOptions($donnees)
             margin-bottom: 30px;
         }
 
-        /* Message de confirmation */
         .message {
             background: rgba(6, 182, 212, 0.15);
             padding: 15px;
@@ -174,16 +157,10 @@ function genererOptions($donnees)
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-            }
-
-            to {
-                opacity: 1;
-            }
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
-        /* Formulaire */
         .form-wrapper {
             display: flex;
             align-items: center;
@@ -194,7 +171,6 @@ function genererOptions($donnees)
             z-index: 1;
         }
 
-        /* Labels */
         label {
             font-size: 14px;
             font-weight: 600;
@@ -204,9 +180,7 @@ function genererOptions($donnees)
             letter-spacing: 0.5px;
         }
 
-        /* Champs du formulaire */
-        input,
-        select {
+        input, select {
             width: 100%;
             padding: 14px 18px;
             border-radius: 12px;
@@ -220,18 +194,14 @@ function genererOptions($donnees)
             font-family: 'Poppins', sans-serif;
         }
 
-        input::placeholder {
-            color: #64748b;
-        }
+        input::placeholder { color: #64748b; }
 
-        input:focus,
-        select:focus {
+        input:focus, select:focus {
             border-color: #06b6d4;
             background: rgba(15, 23, 42, 0.8);
             box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.1);
         }
 
-        /* Select personnalisé */
         select {
             cursor: pointer;
             appearance: none;
@@ -241,20 +211,9 @@ function genererOptions($donnees)
             padding-right: 45px;
         }
 
-        select option {
-            background: #1e293b;
-            color: #e2e8f0;
-            padding: 10px;
-        }
+        select option { background: #1e293b; color: #e2e8f0; padding: 10px; }
+        select optgroup { background: #0f172a; color: #06b6d4; font-weight: 700; font-size: 14px; }
 
-        select optgroup {
-            background: #0f172a;
-            color: #06b6d4;
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        /* Bouton moderne */
         button {
             background: linear-gradient(135deg, #f97316, #ea580c);
             color: white;
@@ -285,26 +244,11 @@ function genererOptions($donnees)
             transition: left 0.5s ease;
         }
 
-        button:hover::before {
-            left: 100%;
-        }
+        button:hover::before { left: 100%; }
+        button:hover { transform: translateY(-3px); box-shadow: 0 12px 35px rgba(249, 115, 22, 0.6); }
+        button:active { transform: translateY(-1px); }
+        button::after { content: '🚗'; margin-left: 10px; }
 
-        button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 12px 35px rgba(249, 115, 22, 0.6);
-        }
-
-        button:active {
-            transform: translateY(-1px);
-        }
-
-        /* Icône du bouton */
-        button::after {
-            content: '🚗';
-            margin-left: 10px;
-        }
-
-        /* Info supplémentaire */
         .info-text {
             text-align: center;
             font-size: 13px;
@@ -313,7 +257,6 @@ function genererOptions($donnees)
             line-height: 1.5;
         }
 
-        /* FOOTER CSS */
         footer {
             background: #0f172a;
             color: #94a3b8;
@@ -332,9 +275,7 @@ function genererOptions($donnees)
             margin: 0 auto;
         }
 
-        .footer-section {
-            flex: 1 1 200px;
-        }
+        .footer-section { flex: 1 1 200px; }
 
         .footer-section h3 {
             color: #e2e8f0;
@@ -345,114 +286,45 @@ function genererOptions($donnees)
             letter-spacing: 1px;
         }
 
-        .footer-section ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
+        .footer-section ul { list-style: none; padding: 0; margin: 0; }
+        .footer-section li { margin-bottom: 10px; font-size: 15px; color: #94a3b8; transition: color 0.3s ease; }
+        .footer-section li:hover { color: #06b6d4; }
 
-        .footer-section li {
-            margin-bottom: 10px;
-            font-size: 15px;
-            color: #94a3b8;
-            transition: color 0.3s ease;
-        }
-
-        .footer-section li:hover {
-            color: #06b6d4;
-        }
-
-        .socials {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
+        .socials { display: flex; gap: 10px; margin-top: 10px; }
 
         .socials a {
-            width: 45px;
-            height: 45px;
-            background: #1e293b;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            border: 1px solid #334155;
+            width: 45px; height: 45px; background: #1e293b; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.3s ease; border: 1px solid #334155;
         }
 
         .socials a:hover {
-            background: #06b6d4;
-            border-color: #06b6d4;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
+            background: #06b6d4; border-color: #06b6d4;
+            transform: translateY(-3px); box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4);
         }
 
-        .socials a img {
-            width: 22px;
-            filter: brightness(0) invert(0.7);
-            transition: transform 0.3s ease, filter 0.3s ease;
-        }
+        .socials a img { width: 22px; filter: brightness(0) invert(0.7); transition: transform 0.3s ease, filter 0.3s ease; }
+        .socials a:hover img { filter: brightness(0) invert(1); }
 
-        .socials a:hover img {
-            filter: brightness(0) invert(1);
-        }
+        .footer-bottom { border-top: 1px solid #334155; margin-top: 30px; padding-top: 20px; text-align: center; }
+        .footer-bottom p { color: #64748b; font-size: 14px; margin-bottom: 10px; }
+        .footer-links { margin-top: 10px; }
+        .footer-links a { margin: 0 15px; color: #94a3b8; text-decoration: none; transition: color 0.3s; font-size: 14px; }
+        .footer-links a:hover { color: #06b6d4; }
 
-        .footer-bottom {
-            border-top: 1px solid #334155;
-            margin-top: 30px;
-            padding-top: 20px;
-            text-align: center;
-        }
-
-        .footer-bottom p {
-            color: #64748b;
-            font-size: 14px;
-            margin-bottom: 10px;
-        }
-
-        .footer-links {
-            margin-top: 10px;
-        }
-
-        .footer-links a {
-            margin: 0 15px;
-            color: #94a3b8;
-            text-decoration: none;
-            transition: color 0.3s;
-            font-size: 14px;
-        }
-
-        .footer-links a:hover {
-            color: #06b6d4;
+        @media (max-width: 1024px) {
+            .container { max-width: 400px; }
         }
 
         @media (max-width: 768px) {
-            .footer-content {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
-
-            .footer-section {
-                flex: none;
-            }
+            .footer-content { flex-direction: column; align-items: center; text-align: center; }
+            .footer-section { flex: none; }
         }
 
-        /* Responsive */
         @media (max-width: 600px) {
-            .container {
-                padding: 30px 25px;
-            }
-
-            h2 {
-                font-size: 26px;
-            }
-
-            input,
-            select,
-            button {
-                font-size: 15px;
-            }
+            .container { padding: 30px 25px; }
+            h2 { font-size: 26px; }
+            input, select, button { font-size: 15px; }
         }
     </style>
 </head>
@@ -462,111 +334,108 @@ function genererOptions($donnees)
         <?php include "navbar.php"; ?>
     </header>
 
+    <div class="form-wrapper">
+        <div class="container">
+            <h2>Demande d'Essai</h2>
+            <p class="subtitle">Réservez votre essai de conduite premium</p>
 
-    <body>
-        <header>
-            <?php include "navbar.php"; ?>
-        </header>
+            <?php if (!empty($message)): ?>
+                <div class="message"><?php echo $message; ?></div>
+            <?php endif; ?>
 
-        <div class="form-wrapper">
-            <div class="container">
-                <h2>🚗 Demande d'Essai</h2>
-                <p class="subtitle">Réservez votre essai de conduite premium</p>
+            <form action="DE.php" method="POST">
+                <label>Nom</label>
+                <input type="text" name="nom" placeholder="Votre nom" required>
 
-                <form action="DE.php" method="POST">
-                    <label>Nom</label>
-                    <input type="text" name="nom" placeholder="Votre nom" required>
+                <label>Prénom</label>
+                <input type="text" name="prenom" placeholder="Votre prénom" required>
 
-                    <label>Prénom</label>
-                    <input type="text" name="prenom" placeholder="Votre prénom" required>
+                <label>Email</label>
+                <input type="email" name="email" placeholder="votre@email.com" required>
 
-                    <label>Email</label>
-                    <input type="email" name="email" placeholder="votre@email.com" required>
+                <label>Heure souhaitée</label>
+                <input type="time" name="Heure" min="08:00" max="18:00" required>
 
-                    <label>Heure souhaitée</label>
-                    <input type="time" name="Heure" min="08:00" max="18:00" required>
+                <label>Choisissez votre véhicule</label>
+                <select name="voiture" required>
+                    <option value="" disabled selected>Sélectionnez un modèle</option>
 
-                    <label>Choisissez votre véhicule</label>
-                    <select name="voiture" required>
-                        <option value="" disabled selected>Sélectionnez un modèle</option>
+                    <optgroup label=" Ferrari">
+                        <option value="Ferrari SF90 Stradale">SF90 Stradale</option>
+                        <option value="Ferrari Purosangue">Purosangue</option>
+                        <option value="Ferrari Roma Spider">Roma Spider</option>
+                        <option value="Ferrari F430">F430</option>
+                    </optgroup>
 
-                        <optgroup label="🏎️ Ferrari">
-                            <option value="Ferrari SF90 Stradale">SF90 Stradale</option>
-                            <option value="Ferrari Purosangue">Purosangue</option>
-                            <option value="Ferrari Roma Spider">Roma Spider</option>
-                            <option value="Ferrari F430">F430</option>
-                        </optgroup>
+                    <optgroup label=" McLaren">
+                        <option value="McLaren 765LT">765LT</option>
+                        <option value="McLaren Artura">Artura</option>
+                        <option value="McLaren GTS">GTS</option>
+                        <option value="McLaren Senna">Senna</option>
+                    </optgroup>
 
-                        <optgroup label="🔥 McLaren">
-                            <option value="McLaren 765LT">765LT</option>
-                            <option value="McLaren Artura">Artura</option>
-                            <option value="McLaren GTS">GTS</option>
-                            <option value="McLaren Senna">Senna</option>
-                        </optgroup>
+                    <optgroup label=" Mercedes-AMG">
+                        <option value="Mercedes-AMG C 63 S Coupé">C 63 S Coupé AMG</option>
+                        <option value="Mercedes-AMG E 53 Coupé">E 53 Coupé AMG</option>
+                        <option value="Mercedes-AMG Classe G (G 63)">Classe G (G 63)</option>
+                    </optgroup>
 
-                        <optgroup label="⭐ Mercedes-AMG">
-                            <option value="Mercedes-AMG C 63 S Coupé">C 63 S Coupé AMG</option>
-                            <option value="Mercedes-AMG E 53 Coupé">E 53 Coupé AMG</option>
-                            <option value="Mercedes-AMG Classe G (G 63)">Classe G (G 63)</option>
-                        </optgroup>
+                    <optgroup label=" Range Rover">
+                        <option value="Range Rover">Range Rover</option>
+                        <option value="Range Rover Sport">Range Rover Sport</option>
+                        <option value="Range Rover Evoque">Range Rover Evoque</option>
+                        <option value="Range Rover SV">Range Rover SV</option>
+                    </optgroup>
+                </select>
 
-                        <optgroup label="🚙 Range Rover">
-                            <option value="Range Rover">Range Rover</option>
-                            <option value="Range Rover Sport">Range Rover Sport</option>
-                            <option value="Range Rover Evoque">Range Rover Evoque</option>
-                            <option value="Range Rover SV">Range Rover SV</option>
-                        </optgroup>
-                    </select>
+                <label>Date d'essai</label>
+                <input type="date" name="date_essai" required>
 
-                    <label>Date d'essai</label>
-                    <input type="date" name="date_essai" required>
+                <button type="submit">Envoyer la demande</button>
+            </form>
 
-                    <button type="submit">Envoyer la demande</button>
-                </form>
+            <p class="info-text">
+                Nos conseillers vous recontacteront sous 24h pour confirmer votre rendez-vous.
+            </p>
+        </div>
+    </div>
 
-                <p class="info-text">
-                    Nos conseillers vous recontacteront sous 24h pour confirmer votre rendez-vous.
-                </p>
-            </div>
-        </div> <!-- Fermeture du form-wrapper -->
-
-        <!-- Footer en dehors du form-wrapper -->
-        <footer>
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h3>Contact</h3>
-                    <ul>
-                        <li>12ᵉ Route Pamplemousses, Mauritius</li>
-                        <li>+230 59 45 67 89</li>
-                        <li>contact@supercar.com</li>
-                    </ul>
-                </div>
-
-                <div class="footer-section">
-                    <h3>Suivez-nous</h3>
-                    <div class="socials">
-                        <a href="https://www.facebook.com" target="_blank">
-                            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" />
-                        </a>
-                        <a href="https://www.twitter.com" target="_blank">
-                            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter" />
-                        </a>
-                        <a href="https://www.instagram.com" target="_blank">
-                            <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" />
-                        </a>
-                    </div>
-                </div>
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>Contact</h3>
+                <ul>
+                    <li>12ᵉ Route Pamplemousses, Mauritius</li>
+                    <li>+230 59 45 67 89</li>
+                    <li>contact@supercar.com</li>
+                </ul>
             </div>
 
-            <div class="footer-bottom">
-                <p>&copy; 2025-2028 Supercars.fr — Tous droits réservés. Réalisation & design MCCI SIO.</p>
-                <div class="footer-links">
-                    <a href="/mentions-legales.html">Mentions légales</a>
-                    <a href="/politique-confidentialite.html">Confidentialité</a>
-                    <a href="/conditions générales.html">conditions générales</a>
+            <div class="footer-section">
+                <h3>Suivez-nous</h3>
+                <div class="socials">
+                    <a href="https://www.facebook.com" target="_blank">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/facebook.svg" alt="Facebook" />
+                    </a>
+                    <a href="https://www.twitter.com" target="_blank">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/twitter.svg" alt="Twitter" />
+                    </a>
+                    <a href="https://www.instagram.com" target="_blank">
+                        <img src="https://cdn.jsdelivr.net/gh/simple-icons/simple-icons/icons/instagram.svg" alt="Instagram" />
+                    </a>
                 </div>
             </div>
-        </footer>
-    </body>
+        </div>
+
+        <div class="footer-bottom">
+            <p>&copy; 2025-2028 Supercars.fr — Tous droits réservés. Réalisation & design MCCI SIO.</p>
+            <div class="footer-links">
+                <a href="/mentions-legales.html">Mentions légales</a>
+                <a href="/politique-confidentialite.html">Confidentialité</a>
+                <a href="/conditions générales.html">conditions générales</a>
+            </div>
+        </div>
+    </footer>
+</body>
 
 </html>

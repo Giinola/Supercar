@@ -1,14 +1,5 @@
 <?php
-$host = "mysql-ginola.alwaysdata.net";  
-$login = "ginola";                  
-$pass = "AlwaysGinola1";            
-$dbname = "ginola_supercar";        
- 
-$bdd = new mysqli($host, $login, $pass, $dbname);
- 
-if ($bdd->connect_error) {
-    die("Connexion échouée: " . $bdd->connect_error);  
-}
+require_once "db.php";
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -473,12 +464,28 @@ if ($bdd->connect_error) {
                 direction: ltr;
             }
 
+            .service-image {
+                height: 300px;
+            }
+
+            .service-info {
+                padding: 35px;
+            }
+
+            .service-info h2 {
+                font-size: 28px;
+            }
+
             .service-features {
                 grid-template-columns: 1fr;
             }
 
             .stats-container {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            .hero h1 {
+                font-size: 48px;
             }
         }
 
